@@ -61,7 +61,7 @@ set smartcase
 "return to head line
 set wrapscan
 
-enable 'g optinon'
+enable "g optinon"
 set gdefault
 
 "set invisible character
@@ -91,7 +91,7 @@ set pumheight=10
 set showmatch
 set matchtime=1
 
-"expand '%'
+"expand "%"
 source $VIMRUNTIME/macros/matchit.vim
 
 "show window's end line
