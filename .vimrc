@@ -21,7 +21,7 @@ set number
 colorscheme ayu
 
 "line nnum $ current line
-utocmd ColorScheme * highlight LineNr ctermfg=12
+autocmd ColorScheme * highlight LineNr ctermfg=12
 highlight CursorLineNr ctermbg=4 ctermfg=0
 set cursorline
 highlight clear CursorLine
@@ -61,7 +61,7 @@ set smartcase
 "return to head line
 set wrapscan
 
-enable "g optinon"
+"enable "g optinon"
 set gdefault
 
 "set invisible character
@@ -77,7 +77,7 @@ set showcmd
 "share clipboard
 set clipboard=unnamed,autoselect
 
-countinue corsor move
+"countinue corsor move
 set whichwrap=b,s,h,l,<,>,~,[,]
 
 "easy to use backspace
