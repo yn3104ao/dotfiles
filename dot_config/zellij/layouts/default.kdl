@@ -1,0 +1,38 @@
+layout {
+    // The entire top section is the work area (no borders)
+    pane borderless=true {
+        pane size="70%"
+
+        pane split_direction="horizontal" size="30%" {
+            pane command="bash" {
+                args "-c" "clear && sleep infinity"
+            }
+
+            pane size="20%" command="pwsh.exe" {
+                args "-NoLogo"
+            }
+        }
+    }
+
+    // Set only the bottom row to the Zellij compact bar
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="zjstatus"
+            {
+                format_left  "{mode} {tabs}"
+                format_center ""
+                format_right ""
+                format_space ""
+
+                mode_normal  "#[bg=blue,fg=black,bold] NORMAL "
+                mode_pane    "#[bg=yellow,fg=black,bold] PANE "
+                mode_tab     "#[bg=magenta,fg=black,bold] TAB "
+                mode_locked  "#[bg=red,fg=black,bold] LOCKED "
+
+                tab_normal   "#[fg=white] {name} "
+                tab_active   "#[fg=cyan,bold,italic] {name} "
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{{ if not .is_windows }}
+[ -f ~/.profile ] && . ~/.profile
+{{ end }}
+
+# ----- Aliases -----
+
+{{ if not .is_windows }}
+alias sbrc='source ~/.bashrc'
+alias ls='eza --icons'
+alias ll='eza -lah --icons'
+alias tree='exa --tree --icons'
+alias cat='bat'
+alias find='fd'
+alias grep='rg'
+alias du='dust -r -d 1'
+alias kube='nerdctl'
+alias gg='git'
+alias zlj='zellij'
+{{ end }}
+
+{{ if .is_wsl -}}
+alias git='git.exe'
+alias gl='/usr/bin/git'
+alias ssh='ssh.exe'
+alias ssh-add='ssh-add.exe'
+alias op='op.exe'
+{{- end }}

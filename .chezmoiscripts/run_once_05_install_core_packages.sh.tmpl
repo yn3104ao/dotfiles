@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+sudo apt -q purge -y snapd apport popularity-contest
+sudo apt -q autoremove -y
+
+if [ ! -f /etc/apt/sources.list.d/github_git-lfs.list ]; then
+    sudo curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+fi
+
+if ! grep -rq "zhangsongcui3371/ubuntu/fastfetch" /etc/apt/sources.list.d/ 2>/dev/null; then
+    sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+fi
+
+{{ if not .is_wsl }}
+# Add 1Password repository for Linux
+if [ ! -f /usr/share/keyrings/1password-archive-keyring.gpg ]; then
+    curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --yes --dearmor -o /usr/share/keyrings/1password-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main" | sudo tee /etc/apt/sources.list.d/1password.list
+fi
+{{ end }}
+
+sudo apt -q update
+sudo apt -q install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release \
+    fastfetch \
+    bash \
+    xz-utils \
+    git-lfs \
+    gh \
+    {{if .is_wsl -}}
+        wslu \
+    {{- else if not .is_windows -}}
+    1password -cli\
+    {{- end }}
+
+fastfetch

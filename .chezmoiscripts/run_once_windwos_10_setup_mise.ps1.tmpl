@@ -1,0 +1,10 @@
+{{ if .is_windows }}
+Write-Hoset "Setting up mise-en-place..."
+mise activate pwsh
+
+Write-Hoset "Checking mise installation successfully."
+mise doctor
+mise -v
+
+Write-Hoset "The mise settings have been completed"
+{{ end }}

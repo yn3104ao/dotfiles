@@ -1,0 +1,3 @@
+{{ if not .is_windows }}
+Include ~/.ssh/1Password/config
+{{ end }}

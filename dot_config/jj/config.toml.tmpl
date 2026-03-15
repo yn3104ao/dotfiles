@@ -1,0 +1,37 @@
+#:schema https://docs.jj-vcs.dev/latest/config-schema.json
+
+[signing]
+sign-all = true
+backend = "ssh"
+{{ if eq .profile "work" -}}
+key = "{{ onepasswordRead "op://Employee/id_ed25519/public key" }}"
+{{ else if eq .profile "personal" -}}
+key = "{{ onepasswordRead "op://Personal/GitHub - Signing/public key" }}"
+{{ end }}
+
+[signing.backend.ssh]
+{{ if .is_windows }}
+    program = "/mnt/c/User/{{ .chezmoi.username }}/AooData/Local/Microsoft/WindowsApps/op-ssh.exe"
+{{  else if .is_wsl }}
+    program = "/mnt/c/User/{{ .chezmoi.username }}/AooData/Local/Microsoft/WindowsApps/op-ssh-wsl.exe"
+{{  else }}
+    program = "/opt/1Password/op-ssh-sign"
+{{ end }}}
+
+[user]
+name = {{ .git_name}}
+email = {{ .git_email }}
+
+[ui]
+pager = "delta"
+editor = "hx"
+conflicts = "materialize"
+
+[ui.diff]
+format = "git"
+
+[aliases]
+init = ["git", "init", "--colocate"]
+l = ["log", "-n"]
+push = ["git", "push", "-b"]
+dpush = ["git", "push", "--dry-run", "-b"]

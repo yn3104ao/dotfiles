@@ -1,0 +1,52 @@
+# ----- PATH -----
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
+{{ if .is_wsl -}}
+export PATH="/mnt/c/Program Files/Git/bin:$PATH"
+{{- end }}
+
+# ----- container -----
+export TESTCONTAINERS_RYUK_DISABLED=true
+if [ -f "/run/containerd/containerd.sock" ]; then
+export DOCKER_HOST=unix:///run/containerd/containerd.sock
+fi
+
+# ----- mise -----
+if [ -f "$HOME/.local/bin/mise" ]; then
+    eval "$($HOME/.local/bin/mise activate bash)"
+    export MISE_STRICT=0
+    export MISE_USE_VERSIONS_HOST=1
+fi
+
+# ----- 1Password SSH agent-----
+{{ if .is_wsl -}}
+export SSH_AUTH_SOCK="/mnt/c/User/{{ .chezmoi.username }}/AppData/Local/1Password/app/ssh-agent.sock"
+if [ ! -S "$SSH_AUTH_SOCK" ]; then
+    mkdir -p ~/.1password
+    op-ssh-wsl.exe -q -s "$SSH_AUTH_SOCK" &
+fi
+{{- else if not .is_windows -}}
+export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+{{- end }}
+
+# ----- fzf -----
+if command -v fzf > /dev/null 2>&1; then
+    FZF_CTRL_R_COMMAND= eval "$(fzf --bash)"
+fi
+
+# ----- starship -----
+if command -v starship > /dev/null 2>&1; then
+    eval "$(starship init bash)"
+fi
+
+# ----- atuin -----
+if command -v atuin > /dev/null 2>&1; then
+    eval "$(atuin init bash --disable-up-arrow)"
+fi
+
+{{ if .is_wsl -}}
+# ----- wslu -----
+if command -v wslusc > /dev/null 2>&1; then
+    export BROWSER='wslusc'
+fi
+{{- end }}

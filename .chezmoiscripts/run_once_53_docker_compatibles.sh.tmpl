@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Installing CNI plugins (for nerdctl networking)..."
+sudo apt -q install -y --no-install-recommends \
+    containernetworking-plugins
+
+echo "=== Setup BuildKit for k3s + nerdctl ==="
+
+# Use chezmoi's template feature, defaulting to "latest" if the variable is not defined
+DESIERD_VERSION="{{ get . "buildkit_version" | default "latest" }}"
+
+if [ "${DESIERD_VERSION}" == "latest" ]; then
+    echo "Checking for the latest BuildKit version..."
+
+    # Get the tag name from the redirect URL of /releases/latest to avoid GitHUb API rate limits
+    # Example: https://api.github.com/repos/moby/buildkit/releases/tag/v0.13.0 -> 0.13.0
+    LATEST_URL=$(curl -w '%{url_effective}' -I -L -s -S https://github.com/moby/buildkit/releases/latest -o /dev/null)
+    BUILDKIT_VERSION=$(basename "${LATEST_URL}" )
+
+    # Failsage in case the version could not be retrieved
+    if [ -z "${BUILDKIT_VERSION}" ] || [ "${BUILDKIT_VERSION}" == "latest" ]; then
+        echo "Error: Failed to retrieve the version" >&2
+        exit 1
+    fi
+else
+    BUILDKIT_VERSION="${DESIERD_VERSION}"
+fi
+
+INSTALL_DIR="/usr/local/bin"
+SERVICE_FILE="/etc/systemd/system/buildkit.service"
+
+echo "=== Setup BuildKit (${BUILDKIT_VERSION}) for k3s + nerdctl ==="
+
+# Check if it's already installed and verify the version (ensure idempotency)
+check_version() {
+    if command -v buildkitd > /dev/null 2>&1; then
+        local current_version
+        # Extract the version part from 'buildkitd github.com/moby/buildkit v0.13.0 ...'
+        current_version=$(buildkitd --version | awk '{print $3}')
+        if [ "${current_version}" = "${BUILDKIT_VERSION}" ]; then
+            return 0
+        fi
+    fi
+    return 1 # Not installed or version mismatch
+}
+
+if check_version; then
+    echo "BuildKit ${BUILDKIT_VERSION} is already installed. Skipping."
+else
+    echo "Installing BuildKit ${BUILDKIT_VERSION}..."
+
+    # Create a temporary directory for safe downloading
+    TMP_DIR=$(mktemp -d)
+    trap 'rm -rf "${TMP_DIR}"' EXIT
+
+    # Construct the URL (split to keep lines under 120 characters)
+    DOWNLOAD_URL="https://github.com/moby/buildkit/releases/download/"
+    DOWNLOAD_URL+="${BUILDKIT_VERSION}/buildkit-${BUILDKIT_VERSION}.linux-amd64.tar.gz"
+
+    # Download and extract the binary
+    sudo curl -sSL "${DOWNLOAD_URL}" -o "${TMP_DIR}/buildkit.tar.gz"
+    tar -xzf "${TMP_DIR}/buildkit.tar.gz" -C "${TMP_DIR}"
+
+    # Move binaries to the system path (requires sudo)
+    sudo cp "${TMP_DIR}/bin/"* "${INSTALL_DIR}/"
+    echo "BuildKit installation completed."
+fi
+
+# Create the systemd service file (overwriting ensure idempotency)
+echo "Configuring buildkit.service..."
+sudo tee "${SERVICE_FILE}" > /dev/null <<EOF
+[Unit]
+Description=BuildKit
+Requires=k3s.service
+After=k3s.service
+
+[Service]
+ExecStart=${INSTALL_DIR}/buildkitd \\
+  --oci-worker=false \\
+  --containerd-worker=true \\
+  --containerd-worker-addr=/run/k3s/containerd/containerd.sock
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Reload systemd and start the service
+if [ -d "/run/systemd/system" ]; then
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now buildkit.service
+    echo "BuildKit service startup and configuration completed!"
+else
+    echo "Warning: systemd is not running. Please check your WSL systemd settings."
+fi

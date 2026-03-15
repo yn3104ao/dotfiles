@@ -1,0 +1,115 @@
+// Common settings
+show_startup_tips false
+auto_layout true
+update_check false
+mouse_mode true
+copy_on_select true
+
+default-layout "compact"
+
+
+keybinds {
+    unbind "Ctrl b" // Reset the default once
+
+    normal {
+        bind "Ctrl b" "l" {
+            Run "fend" {
+                floating true
+                close_on_exit true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "Ctrl b" "k" {
+            LaunchOrFocusPlugin "send-key" {
+                payload "Enter"
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "Ctrl b" "m" {
+            LaunchOrFocusPlugin "monocle" {
+                floating true
+            };
+            SwitchToMode "Normal";
+        }
+
+        bind "Ctrl b" "f" {
+            LaunchOrFocusPlugin "strider " {
+                floating true
+            };
+            SwitchToMode "Normal";
+        }
+    }
+
+    pane { unbind "c"; }
+
+    shared_except "locked" {
+        bind "Ctrl b" { SwitchToMode "Locked"; }
+
+        bind "Ctrl y" {
+            LaunchOrFocusPlugin "zellij_forgot" {
+                "buy eggs" "5x"
+                "learn rust" "5h"
+                "clean up code" "tomorrow"
+                floating true
+                move_to_focused_tab true
+            };
+        }
+    }
+
+    locked {
+        bind "Ctrl b" { SwitchToMode "Normal"; }
+    }
+}
+
+// Attention to appearance (beauty that erases lingering attachment to Hyprland)
+// Define a custom theme that automatically syncs with Terminal
+// themes {
+//    term_sync {
+//        fg "White"
+//        bg "Black"
+//        black "Black"
+//        red "Red"
+//        green "Green"
+//        yellow "Yellow"
+//        blue "Blue"
+//        magenta "Magenta"
+//        cyan "Cyan"
+//        white "White"
+//        orange "Yellow" // Since orange is not included in the ANSI standard, an alternative is used
+
+//        // [Note] Blend inactive slots into "Terminal Black"
+//        frame_unselected "Black"
+
+//        // Highlight the active field in "Terminal Cyan"
+//        frame_selected "Cyan"
+//    }
+}
+// theme "term_sync"
+theme "catppuccin_mocha"
+
+simplified_ui true
+ui {
+    pane_frames {
+        rounded_corners true
+        hide_session_name true
+    }
+}
+
+// Hyprland's Scratchpad-like floating pane
+keybinds {
+    locked {
+        // Press Ctrl+b -> f to always bring the terminal to the center.
+        bind "Ctrl b" "f" { ToggleFloatingPanes; SwitchToMode "Locked"; }
+    }
+}
+
+plugins {
+    monocle location="file:~/.config/zellij/plugins/monocle.wasm"
+    send-keys location="file:~/.config/zellij/plugins/zellij-send-key.wasm"
+    zellij-forgot location="file:~/zellij-plugins/zellij_forgot.wasm"
+    zjstatus location="file:~/zellij-plugins/zjstatus.wasm"
+}

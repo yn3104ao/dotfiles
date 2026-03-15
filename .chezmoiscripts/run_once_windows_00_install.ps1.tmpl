@@ -1,0 +1,33 @@
+{{ if .is_windows }}
+# Install core tools using winget
+
+Wite-Host "Installing mise..."
+winget install -s winget -e --id jdx.mise --accept-package-agreements --accept-source-agreements
+
+Wite-Host "Installing ueli..."
+winget install -s winget -e --id OliverSchwendener.ueli --accept-package-agreements --accept-source-agreements
+
+Wite-Host "Installing WezTerm..."
+winget install -s winget -e --id wez.wezterm --accept-package-agreements --accept-source-agreements
+
+Wite-Host "Installing Powershell7..."
+winget install -s winget -e --id Microsoft.Powershell --accept-package-agreements --accept-source-agreements
+
+Wite-Host "Installing 1Password CLI..."
+winget install -s winget -e --id AgileBits.1Password.CLI --accept-package-agreements --accept-source-agreements
+
+Wite-Host "Installing VSCode..."
+winget install -s winget -e --id Microsoft.VisualStudioCode --accept-package-agreements --accept-source-agreements
+
+Wite-Host "Installing Git for is_Windows..."
+winget install -s winget -e --id Git.Git --accept-package-agreements --accept-source-agreements
+
+
+{{      if eq .profile "work" }}
+Wite-Host "Work profile detected."
+Wite-Host "Installing Visual Studio..."
+winget install -e --id Microsoft.VisualStudio.2022.Professional --accept-package-agreements --accept-source-agreements
+{{      end }}
+
+Write-Host "Windows tool installation completed."
+{{ end }}

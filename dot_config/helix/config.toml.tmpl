@@ -1,0 +1,26 @@
+# Theme switching per OS (visual context switching)
+{{ if .is_windows }}
+theme = "nightfox"
+{{ else }}
+theme = "catppuccin_mocha"
+{{ end }}
+
+# Common Settings: Settings to Keep Your Hands on the Keyboard
+[editor]
+line-number = "relative"
+cursorline = true
+auto-format = true
+color-modes = true
+idle-timeout = 200 # Speed until autocomplete appears
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.file-picker]
+hidden = false
+
+# Key bindings are fully standardized (so muscle memory won't betray you)
+[keys.normal]
+"esc" = ["collapse_selection", "keep_primary_selection"]
