@@ -1,25 +1,13 @@
 layout {
     // The entire top section is the work area (no borders)
-    pane borderless=true {
-        pane size="70%"
-
-        pane split_direction="horizontal" size="30%" {
-            pane command="bash" {
-                args "-c" "clear && sleep infinity"
-            }
-
-            pane size="20%" command="pwsh.exe" {
-                args "-NoLogo"
-            }
-        }
+    pane borderless=true
     }
 
     // Set only the bottom row to the Zellij compact bar
     default_tab_template {
         children
         pane size=1 borderless=true {
-            plugin location="zjstatus"
-            {
+            plugin location="zjstatus" {
                 format_left  "{mode} {tabs}"
                 format_center ""
                 format_right ""

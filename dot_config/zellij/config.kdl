@@ -9,10 +9,10 @@ default-layout "compact"
 
 
 keybinds {
-    unbind "Ctrl b" // Reset the default once
+    tumx clear-defaults=true {
+        bind "Ctrl b" { SwitchToMode "Normal"; }
 
-    normal {
-        bind "Ctrl b" "l" {
+        bind "l" {
             Run "fend" {
                 floating true
                 close_on_exit true
@@ -20,7 +20,7 @@ keybinds {
             SwitchToMode "Normal"
         }
 
-        bind "Ctrl b" "k" {
+        bind "k" {
             LaunchOrFocusPlugin "send-key" {
                 payload "Enter"
                 floating true
@@ -29,27 +29,21 @@ keybinds {
             SwitchToMode "Normal"
         }
 
-        bind "Ctrl b" "m" {
+        bind "m" {
             LaunchOrFocusPlugin "monocle" {
                 floating true
             };
             SwitchToMode "Normal";
         }
 
-        bind "Ctrl b" "f" {
+        bind "f" {
             LaunchOrFocusPlugin "strider " {
                 floating true
             };
             SwitchToMode "Normal";
         }
-    }
 
-    pane { unbind "c"; }
-
-    shared_except "locked" {
-        bind "Ctrl b" { SwitchToMode "Locked"; }
-
-        bind "Ctrl y" {
+        ind "y" {
             LaunchOrFocusPlugin "zellij_forgot" {
                 "buy eggs" "5x"
                 "learn rust" "5h"
@@ -60,9 +54,7 @@ keybinds {
         }
     }
 
-    locked {
-        bind "Ctrl b" { SwitchToMode "Normal"; }
-    }
+    pane { unbind "c"; }
 }
 
 // Attention to appearance (beauty that erases lingering attachment to Hyprland)
