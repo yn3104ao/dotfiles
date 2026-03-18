@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if ! command -v nerdctl > /dev/null 2>&1; then
-    echo "nerdctl is already installed, skipping installation."
+    echo "[chezmoi] [install_nerdctl.sh] すでに nerdctl はインストールされています。スキップします。"
     exit 0
 fi
 

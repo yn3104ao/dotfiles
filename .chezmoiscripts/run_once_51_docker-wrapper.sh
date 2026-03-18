@@ -12,18 +12,18 @@ fi
 
 # If Docker wrapper already exists, do nothing
 if [ -f "$DOCKER_WRAPPER" ]; then
-    echo "Docker wrapper already exists at $DOCKER_WRAPPER, skipping installation."
+    echo "[chezmoi] [docker-wrapper.sh] ✅ Docker wrapper already exists at $DOCKER_WRAPPER, skipping installation."
     exit 0
 fi
 
 # Do note crerate in environmentes without nerdctl
 if ! command -v nerdctl &> /dev/null; then
-    echo "nerdctl command not found, skipping Docker wrapper installation."
+    echo "[chezmoi] [docker-wrapper.sh] ℹ️ nerdctl command not found, skipping Docker wrapper installation."
     exit 0
 fi
 
 # Docker wrapper Creation
-echo "Creating Docker wrapper at $DOCKER_WRAPPER..."
+echo "[chezmoi] [docker-wrapper.sh] 🚀 Creating Docker wrapper at $DOCKER_WRAPPER..."
 cat << 'EOF' > "$DOCKER_WRAPPER"
 #!/usr/bin/env bash
 #Docker wrapper -> nerdctl
@@ -39,4 +39,4 @@ if ! grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null;
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
 fi
 
-echo "Docker wrapper created successfully at $DOCKER_WRAPPER."
+echo "[chezmoi] [docker-wrapper.sh] ✅ Docker wrapper created successfully at $DOCKER_WRAPPER."
