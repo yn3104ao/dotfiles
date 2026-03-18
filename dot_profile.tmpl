@@ -1,9 +1,9 @@
 # ----- PATH -----
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
-{{ if .is_wsl -}}
+{{ if .is_wsl }}
 export PATH="/mnt/c/Program Files/Git/bin:$PATH"
-{{- end }}
+{{ end }}
 
 # ----- container -----
 export TESTCONTAINERS_RYUK_DISABLED=true
@@ -19,15 +19,9 @@ if [ -f "$HOME/.local/bin/mise" ]; then
 fi
 
 # ----- 1Password SSH agent-----
-{{ if .is_wsl -}}
+{{ if .is_wsl }}
 export SSH_AUTH_SOCK="/mnt/c/User/{{ .chezmoi.username }}/AppData/Local/1Password/app/ssh-agent.sock"
-if [ ! -S "$SSH_AUTH_SOCK" ]; then
-    mkdir -p ~/.1password
-    op-ssh-wsl.exe -q -s "$SSH_AUTH_SOCK" &
-fi
-{{- else if not .is_windows -}}
-export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
-{{- end }}
+{{ end }}
 
 # ----- fzf -----
 if command -v fzf > /dev/null 2>&1; then
@@ -44,9 +38,19 @@ if command -v atuin > /dev/null 2>&1; then
     eval "$(atuin init bash --disable-up-arrow)"
 fi
 
-{{ if .is_wsl -}}
+# ----- zoxide -----
+if command -v zoxide > /dev/null 2>&1; then
+    eval "$(zoxide init bash --cmd cd)"
+fi
+
+# ----- souce-chain -----
+if [ -f "$HOME/.safe-chain/scripts/init-posix.sh" ]; then
+    . "$HOME/.safe-chain/scripts/init-posix.sh"
+fi
+
+{{ if .is_wsl }}
 # ----- wslu -----
 if command -v wslusc > /dev/null 2>&1; then
     export BROWSER='wslusc'
 fi
-{{- end }}
+{{ end }}
