@@ -16,7 +16,7 @@ if [ -f "$OP_WRAPPER" ]; then
     exit 0
 fi
 
-# Do note crerate in environmentes without op.exe
+# Do not create in environments without op.exe
 if ! command -v op.exe &> /dev/null; then
     echo "op command not found, skipping op wrapper installation."
     exit 0
