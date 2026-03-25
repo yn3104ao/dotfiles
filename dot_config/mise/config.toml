@@ -1,0 +1,81 @@
+[tools]
+# ===============
+# Rust Tools
+# ===============
+
+# CLI Commands
+eza = "0.23.4"
+bat = "0.26.1"
+fd = "10.3.0"
+ripgrep = "15.1.0"
+bottom = "0.12.3"
+sd = "1.1.0"
+zoxide = "0.9.6"
+atuin = "18.12.1"
+"aqua:printfn/fend" = "1.5.8"
+
+# pager
+delta = "0.18.2"
+
+# Terminal multiplexer
+zellij = "0.43.1"
+
+# Editor
+helix = "25.07.1"
+
+# Beautiful Prompt
+starship = "1.24.2"
+
+# This is written in Go, but it's required
+fzf = "0.70.0"
+
+# ===============
+# Languages (global install)
+# ===============
+# rust = "1.94.0"
+
+# ===============
+# Languages (formatter and lang-server)
+# ===============
+
+# TypeScript
+# "npm:prettier" = "latest"
+# "npm:typescript-language-server" = "latest"
+
+# Python
+# "pipx:ruff" = "latest"
+# "pipx:pyright" = "latest"
+
+# ShellScript
+# "shfmt" = "latest"
+# "npm:bash-language-server" = "latest"
+
+# C#
+# "csharp-ls" = "latest"
+
+# ===============
+# Task Runner
+# ===============
+[tasks.playground]
+description = "Experimental container supporting 1Password Signing"
+run = """
+nerdctl run -it --rm \
+  -v "$HOME:$HOME" \
+  -v "$SSH_AUTH_SOCK:$SSH_AUTH_SOCK" \
+  -e "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" \
+  -e "HOME=$HOME" \
+  -w "$HOME" \
+  --user "$(id -u):$(id -g)" \
+  ubuntu:24.04 bash
+"""
+
+[tasks."dind:up]
+description = ""
+run = """
+  sudo nerdctl run -d --name dind \
+    --privileged \
+    -p 127.0.0.1:2375:2375 \
+    -e DOCKER_TLS_CERTDIR="" \
+    -v "$@":/var/lib/docker \
+    docker.io/docker:dind
+"""

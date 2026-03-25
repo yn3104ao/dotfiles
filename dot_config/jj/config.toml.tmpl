@@ -11,15 +11,15 @@ key = "{{ onepasswordRead "op://Personal/GitHub - Signing/public key" }}"
 
 [signing.backend.ssh]
 {{ if .is_windows }}
-    program = "/mnt/c/User/{{ .chezmoi.username }}/AooData/Local/Microsoft/WindowsApps/op-ssh.exe"
+    program = "/mnt/c/User/{{ .chezmoi.username }}/AppData/Local/Microsoft/WindowsApps/op-ssh.exe"
 {{  else if .is_wsl }}
-    program = "/mnt/c/User/{{ .chezmoi.username }}/AooData/Local/Microsoft/WindowsApps/op-ssh-wsl.exe"
+    program = "/mnt/c/User/{{ .chezmoi.username }}/AppData/Local/Microsoft/WindowsApps/op-ssh-wsl.exe"
 {{  else }}
     program = "/opt/1Password/op-ssh-sign"
 {{ end }}}
 
 [user]
-name = {{ .git_name}}
+name = {{ .git_name }}
 email = {{ .git_email }}
 
 [ui]

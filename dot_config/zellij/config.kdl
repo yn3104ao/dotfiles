@@ -5,8 +5,15 @@ update_check false
 mouse_mode true
 copy_on_select true
 
-default-layout "compact"
+simplified_ui true
+ui {
+    pane_frames {
+        rounded_corners true
+        hide_session_name true
+    }
+}
 
+theme "catppuccin_mocha"
 
 keybinds {
     tmux clear-defaults=true {
@@ -32,6 +39,8 @@ keybinds {
         bind "m" {
             LaunchOrFocusPlugin "local:monocle" {
                 floating true
+                move_to_focused_tab true
+                close_on_exit true
             };
             SwitchToMode "Normal";
         }
@@ -39,6 +48,8 @@ keybinds {
         bind "f" {
             LaunchOrFocusPlugin "zellij:strider " {
                 floating true
+                move_to_focused_tab true
+                close_on_exit true
             };
             SwitchToMode "Normal";
         }
@@ -50,52 +61,15 @@ keybinds {
                 "clean up code" "tomorrow"
                 floating true
                 move_to_focused_tab true
+                close_on_exit true
             };
         }
     }
-
-    pane { unbind "c"; }
 }
-
-// Attention to appearance (beauty that erases lingering attachment to Hyprland)
-// Define a custom theme that automatically syncs with Terminal
-// themes {
-//    term_sync {
-//        fg "White"
-//        bg "Black"
-//        black "Black"
-//        red "Red"
-//        green "Green"
-//        yellow "Yellow"
-//        blue "Blue"
-//        magenta "Magenta"
-//        cyan "Cyan"
-//        white "White"
-//        orange "Yellow" // Since orange is not included in the ANSI standard, an alternative is used
-
-//        // [Note] Blend inactive slots into "Terminal Black"
-//        frame_unselected "Black"
-
-//        // Highlight the active field in "Terminal Cyan"
-//        frame_selected "Cyan"
-//    }
-// }
-// theme "term_sync"
-
-theme "catppuccin_mocha"
-
-simplified_ui true
-ui {
-    pane_frames {
-        rounded_corners true
-        hide_session_name true
-    }
-}
-
 
 plugins {
     local:monocle location="file:$HOME/.config/zellij/plugins/monocle.wasm"
     local:send-keys location="file:$HOME/.config/zellij/plugins/zellij-send-key.wasm"
-    local:zellij-forgot location="file:$HOME/zellij-plugins/zellij_forgot.wasm"
-    local:zjstatus location="file:$HOME/zellij-plugins/zjstatus.wasm"
+    local:zellij-forgot location="file:$HOME/.config/zellij/plugins/zellij_forgot.wasm"
+    local:zjstatus location="file:$HOME/.config/zellij/plugins/zjstatus.wasm"
 }

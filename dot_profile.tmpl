@@ -7,8 +7,8 @@ export PATH="/mnt/c/Program Files/Git/bin:$PATH"
 
 # ----- container -----
 export TESTCONTAINERS_RYUK_DISABLED=true
-if [ -f "/run/containerd/containerd.sock" ]; then
-export DOCKER_HOST=unix:///run/containerd/containerd.sock
+if [ -f "/run/k3s/containerd/containerd.sock" ]; then
+export DOCKER_HOST=unix:///run/k3s/containerd/containerd.sock
 fi
 
 # ----- mise -----

@@ -18,11 +18,11 @@ config.default_prog = { 'wsl.exe', '~', '-d', 'Ubuntu', 'bash', '-l', '-c', 'zel
 -- ==========================================
 config.launch_menu = {
   {
-    label = '󰨊 PowerShell (Windows)',
+    label = '󰨊  PowerShell (Windows)',
     args = { 'pwsh.exe', '-NoLogo' },
   },
   {
-    label = ' Ubuntu (Clean Shell)',
+    label = '  Ubuntu (Clean Shell)',
     args = { 'wsl.exe', '~', '-d', 'Ubuntu' }, -- WSL without Zellij
   },
   -- If needed, Git Bash or CMD can also be added here.
