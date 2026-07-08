@@ -1,0 +1,20 @@
+{{ if .is_windows }}
+Write-Host "[chezmoi] [setup_mise.ps1] 🚀 Setting up mise-en-place..."
+$miseActivation = 'mise activate pwsh | Out-String | Invoke-Expression'
+if (-not (Test-Path $PROFILE)) {
+    New-Item -ItemType File -Path $PROFILE -Force | Out-Null
+}
+if (-not (Select-String -Path $PROFILE -SimpleMatch -Pattern 'mise activate pwsh' -Quiet)) {
+    Add-Content -Path $PROFILE -Value $miseActivation
+    Write-Host "[chezmoi] [setup_mise.ps1] ✅ Added mise activation to the pwsh profile."
+} else {
+    Write-Host "[chezmoi] [setup_mise.ps1] ℹ️ mise activation already present in the pwsh profile."
+}
+mise activate pwsh | Out-String | Invoke-Expression
+
+Write-Host "[chezmoi] [setup_mise.ps1] 🩺 Checking mise installation successfully."
+mise doctor
+mise -v
+
+Write-Host "[chezmoi] [setup_mise.ps1] 🎉 The mise settings have been completed"
+{{ end }}
