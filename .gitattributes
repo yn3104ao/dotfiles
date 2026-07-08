@@ -1,0 +1,10 @@
+# Repository line-ending policy
+# Base: LF for everything. Shell scripts require LF, and an LF baseline keeps
+# cross-platform (Windows / Linux / WSL) diffs clean. Git already stores LF.
+* text=auto eol=lf
+
+# Windows-only formats that genuinely require CRLF.
+# None are tracked today; declared so any future additions stay correct.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.reg text eol=crlf
