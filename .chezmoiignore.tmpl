@@ -1,16 +1,26 @@
 README.md
 
 {{ if not .is_windows }}
+# Windows-only artifacts (PowerShell scripts, Windows Terminal, AppData)
 **/*.ps1
 **/WindowsTerminal/
 AppData/
-.wezterm.lua
-**/wezterm
 {{ end }}
 
 {{ if .is_windows }}
-**/*.sh
+# POSIX shell dotfiles and scripts (Linux / WSL only)
 .bashrc
 .bash_profile
 .profile
+**/*.sh
+{{ end }}
+
+{{/*
+  WezTerm runs natively on Windows and on a Linux desktop only.
+  Inside WSL it runs on the Windows host, and headless Linux servers have no GUI,
+  so drop the config in those cases.
+*/}}
+{{ if not (or .is_windows (and .is_pure_linux .is_desktop)) }}
+.wezterm.lua
+**/wezterm
 {{ end }}
