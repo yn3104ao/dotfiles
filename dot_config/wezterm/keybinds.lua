@@ -36,6 +36,9 @@ M.default_keybinds = {
 	{ key = 'L', mods = 'CTRL', action = act.ShowDebugOverlay },
 }
 
+-- User-defined extra keybinds (empty by default; extend as needed)
+M.my_keybinds = {}
+
 M.mouse_bindings = {
 	{
 		event = { Up = { streak = 1, button = "Left" } },
