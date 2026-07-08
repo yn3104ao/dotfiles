@@ -2,17 +2,15 @@ README.md
 
 {{ if not .is_windows }}
 **/*.ps1
-**/*.ps1.tmpl
 **/WindowsTerminal/
 AppData/
-dot_wezterm.lua
+.wezterm.lua
 **/wezterm
 {{ end }}
 
 {{ if .is_windows }}
 **/*.sh
-**/*.sh.tmpl
-dot_bashrc
-dot_bash_profile
-dot_profile.tmpl
+.bashrc
+.bash_profile
+.profile
 {{ end }}
