@@ -1,0 +1,43 @@
+{{- /*
+   Zellij plugins are fetched from their upstream GitHub releases instead of
+   being vendored in this repository. This keeps the tree free of third-party
+   binaries (license-clean) while still provisioning the plugins automatically.
+
+   Versions and checksums are pinned so that:
+     - applies are reproducible,
+     - the download never touches the GitHub API (direct asset URLs only, so we
+       never hit the unauthenticated API rate limit), and
+     - the payload is verified before it lands on disk.
+
+   To bump a plugin, update its version in the URL and refresh the matching
+   checksum/size (`gh api repos/<owner>/<repo>/releases`). Changing the URL
+   invalidates chezmoi's cache, so the new asset is downloaded on the next apply.
+
+   Zellij is a POSIX terminal multiplexer, so these are only provisioned off
+   Windows.
+*/ -}}
+{{- if not .is_windows }}
+[".config/zellij/plugins/zjstatus.wasm"]
+    type = "file"
+    url = "https://github.com/dj95/zjstatus/releases/download/v0.22.0/zjstatus.wasm"
+    refreshPeriod = "8760h"
+    checksum = { sha256 = "4de426d20b1cbf861272e927aeeb5b49d92c17f0e2bb9d173f85bf7f0154dd53", size = 3845022 }
+
+[".config/zellij/plugins/zellij-send-keys.wasm"]
+    type = "file"
+    url = "https://github.com/atani/zellij-send-keys/releases/download/v0.2.0/zellij-send-keys.wasm"
+    refreshPeriod = "8760h"
+    checksum = { sha256 = "8375daa221de72c7062362b2526bf91dba02b7c93e0fac3f03955e9f738aaa7f", size = 858546 }
+
+[".config/zellij/plugins/zellij_forgot.wasm"]
+    type = "file"
+    url = "https://github.com/karimould/zellij-forgot/releases/download/0.4.2/zellij_forgot.wasm"
+    refreshPeriod = "8760h"
+    checksum = { sha256 = "31194145519dbdc128685b456f970374378fa19fc9da742fbe4a321bace449db", size = 1154200 }
+
+[".config/zellij/plugins/monocle.wasm"]
+    type = "file"
+    url = "https://github.com/imsnif/monocle/releases/download/v0.100.2/monocle.wasm"
+    refreshPeriod = "8760h"
+    checksum = { sha256 = "4cb7e2cc912d975b4e755c93e44e7f0de62ef9240a09a89b735490cf4713792c", size = 2966889 }
+{{- end }}
