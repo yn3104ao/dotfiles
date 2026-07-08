@@ -28,7 +28,7 @@ keybinds {
         }
 
         bind "k" {
-            LaunchOrFocusPlugin "local:send-key" {
+            LaunchOrFocusPlugin "local:send-keys" {
                 payload "Enter"
                 floating true
                 move_to_focused_tab true
@@ -46,7 +46,7 @@ keybinds {
         }
 
         bind "f" {
-            LaunchOrFocusPlugin "zellij:strider " {
+            LaunchOrFocusPlugin "zellij:strider" {
                 floating true
                 move_to_focused_tab true
                 close_on_exit true
@@ -55,7 +55,7 @@ keybinds {
         }
 
         bind "y" {
-            LaunchOrFocusPlugin "local:zellij_forgot" {
+            LaunchOrFocusPlugin "local:zellij-forgot" {
                 "buy eggs" "5x"
                 "learn rust" "5h"
                 "clean up code" "tomorrow"
@@ -69,7 +69,7 @@ keybinds {
 
 plugins {
     local:monocle location="file:$HOME/.config/zellij/plugins/monocle.wasm"
-    local:send-keys location="file:$HOME/.config/zellij/plugins/zellij-send-key.wasm"
+    local:send-keys location="file:$HOME/.config/zellij/plugins/zellij-send-keys.wasm"
     local:zellij-forgot location="file:$HOME/.config/zellij/plugins/zellij_forgot.wasm"
     local:zjstatus location="file:$HOME/.config/zellij/plugins/zjstatus.wasm"
 }
