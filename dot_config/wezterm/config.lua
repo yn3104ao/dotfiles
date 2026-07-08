@@ -5,28 +5,73 @@ local config = wezterm.config_builder()
 
 local gpus = wezterm.gui.enumerate_gpus()
 local session_name = utils.generate_session_name()
+local target_triple = wezterm.target_triple or ''
+local is_windows = target_triple:find('windows') ~= nil
+local is_linux = target_triple:find('linux') ~= nil
 
 require("on")
 
--- ==========================================
--- 1. Default Settings (Automatic Attachment to WSL)
--- ==========================================
-config.default_prog = { 'wsl.exe', '~', '-d', 'Ubuntu', 'bash', '-l', '-c', 'zellij attach -c ' .. session_name }
+local function child_process_succeeds(args)
+  local ok, success = pcall(function()
+    return wezterm.run_child_process(args)
+  end)
+
+  return ok and success
+end
+
+local function windows_program_available(program)
+  return child_process_succeeds({ 'where.exe', program })
+end
 
 -- ==========================================
--- 2. Launcher Menu (Windows Profile)
+-- 1. Default Settings
 -- ==========================================
-config.launch_menu = {
-  {
-    label = '󰨊  PowerShell (Windows)',
-    args = { 'pwsh.exe', '-NoLogo' },
-  },
-  {
-    label = '  Ubuntu (Clean Shell)',
-    args = { 'wsl.exe', '~', '-d', 'Ubuntu' }, -- WSL without Zellij
-  },
-  -- If needed, Git Bash or CMD can also be added here.
-}
+local zellij_command = 'zellij attach -c ' .. session_name
+local powershell = 'powershell.exe'
+local has_wsl = false
+
+if is_windows then
+  has_wsl = windows_program_available('wsl.exe')
+  if windows_program_available('pwsh.exe') then
+    powershell = 'pwsh.exe'
+  end
+
+  if has_wsl then
+    config.default_prog = { 'wsl.exe', '~', '-d', 'Ubuntu', 'bash', '-l', '-c', zellij_command }
+  else
+    config.default_prog = { powershell, '-NoLogo' }
+  end
+elseif is_linux then
+  config.default_prog = { 'bash', '-l', '-c', zellij_command }
+else
+  config.default_prog = { 'bash', '-l', '-c', zellij_command }
+end
+
+-- ==========================================
+-- 2. Launcher Menu
+-- ==========================================
+if is_windows then
+  config.launch_menu = {
+    {
+      label = '󰨊  PowerShell (Windows)',
+      args = { powershell, '-NoLogo' },
+    },
+  }
+
+  if has_wsl then
+    table.insert(config.launch_menu, {
+      label = '  Ubuntu (Clean Shell)',
+      args = { 'wsl.exe', '~', '-d', 'Ubuntu' },
+    })
+  end
+else
+  config.launch_menu = {
+    {
+      label = '  Bash',
+      args = { 'bash', '-l' },
+    },
+  }
+end
 
 -- ==========================================
 -- 3. Exterior (Hyprland knockoff: Acrylic + Catppuccin)
@@ -49,9 +94,13 @@ config.hide_tab_bar_if_only_one_tab = false
 config.enable_scroll_bar = false -- No scroll bar needed
 
 config.window_background_opacity = 0
-config.webgpu_preferred_adapter = gpus[1]
+if gpus[1] then
+  config.webgpu_preferred_adapter = gpus[1]
+end
 config.front_end = "WebGpu"
-config.win32_system_backdrop = 'Acrylic'
+if is_windows then
+  config.win32_system_backdrop = 'Acrylic'
+end
 
 -- ==========================================
 -- 4. Other settings
