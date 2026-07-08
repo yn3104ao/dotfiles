@@ -49,6 +49,12 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 }
 
 if (Get-Command zellij -ErrorAction SilentlyContinue) {
+    # Zellij on Windows defaults to %APPDATA%\Zellij; redirect it to the
+    # chezmoi-managed ~/.config/zellij so every platform shares one config.
+    $env:ZELLIJ_CONFIG_DIR = Join-Path $HOME '.config\zellij'
+    # Plugin `file:$HOME/...` paths are shell-expanded and need the HOME env
+    # var, which Windows does not set by default.
+    if (-not $env:HOME) { $env:HOME = $HOME }
     function global:zlj { zellij @args }
 }
 

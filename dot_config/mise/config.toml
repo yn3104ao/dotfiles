@@ -17,8 +17,8 @@ atuin = "18.12.1"
 # pager
 delta = "0.18.2"
 
-# Terminal multiplexer
-zellij = "0.43.1"
+# Terminal multiplexer (0.44.0+ ships native Windows binaries)
+zellij = "0.44.3"
 
 # Editor
 helix = "25.07.1"
