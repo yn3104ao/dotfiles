@@ -5,7 +5,6 @@ local wezterm = require("wezterm")
 -- ==========================================
 -- This will be replaced later with chezmoi's auto-placement
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
-tabline = require("init")
 tabline.setup(
     {
         options = {
@@ -34,7 +33,7 @@ tabline.setup(
             tab_inactive = { 'index' },
             tabline_x = { 'cpu' , 'ram' },
             -- The time isn't updating (should it be synchronized with `update_right_status`?)
-            tabline_y = { wezterm.nerdfonts.md_calender_clock .. ' ' .. wezterm.time():format('%Y/%m/%d %H:%M') .. ' ' },
+            tabline_y = { wezterm.nerdfonts.md_calendar_clock .. ' ' .. wezterm.time():format('%Y/%m/%d %H:%M') .. ' ' },
             tabline_z = { { 'domain' , padding = { left = 0, right = 1 } } },
         }
     }
