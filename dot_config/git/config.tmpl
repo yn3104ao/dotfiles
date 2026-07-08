@@ -1,10 +1,12 @@
 [user]
     name = {{ .git_name }}
     email = {{ .git_email }}
+    {{ if not (and .is_pure_linux (not .is_desktop)) -}}
     {{ if eq .profile "work" -}}
     signingkey = "{{ onepasswordRead "op://Employee/id_ed25519/public key" }}"
     {{ else if eq .profile "personal" }}
     signingkey = "{{ onepasswordRead "op://Personal/GitHub - Signing/public key" }}"
+    {{ end -}}
     {{ end }}
 
     # A little "annoyance" setting in case the email address is emptys
