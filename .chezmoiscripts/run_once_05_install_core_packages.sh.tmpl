@@ -34,7 +34,7 @@ sudo apt -q install -y --no-install-recommends \
     {{if .is_wsl -}}
         wslu \
     {{- else if not .is_windows -}}
-    1password -cli\
+    1password-cli \
     {{- end }}
 
 fastfetch
