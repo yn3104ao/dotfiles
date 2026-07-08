@@ -9,7 +9,7 @@ sudo rm -rf /var/lib/apt/lists/*
 echo "[chezmoi] [cleanup.sh] 🧹 journal log cleanup (keep last 2 days)..."
 sudo journalctl --vacuum-time=2d
 
-K3S_CONTAINERD="/run/containerd/containerd.sock"
+K3S_CONTAINERD="/run/k3s/containerd/containerd.sock"
 
 if command -v nerdctl > /dev/null 2>&1 && [ -S "$K3S_CONTAINERD" ]; then
     echo "[chezmoi] [cleanup.sh] 🐳 K3s detected, stopping k3s service..."
