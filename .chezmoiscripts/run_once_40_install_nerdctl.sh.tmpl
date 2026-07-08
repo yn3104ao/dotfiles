@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+{{ if and .is_pure_linux (not .is_desktop) -}}
+echo "[chezmoi] [install_nerdctl.sh] ⏭️ Skipping container/k8s setup on a headless Linux server."
+exit 0
+{{ end -}}
 
 if command -v nerdctl > /dev/null 2>&1; then
     echo "[chezmoi] [install_nerdctl.sh] nerdctl is already installed. Skipping."

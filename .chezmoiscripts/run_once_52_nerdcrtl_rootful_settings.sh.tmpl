@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+{{ if and .is_pure_linux (not .is_desktop) -}}
+echo "[chezmoi] [nerdcrtl_rootful_settings.sh] ⏭️ Skipping container/k8s setup on a headless Linux server."
+exit 0
+{{ end -}}
 
 SRC="$HOME/.config/nerdctl/nerdctl.toml"
 DST="/etc/nerdctl/nerdctl.toml"

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+{{ if and .is_pure_linux (not .is_desktop) -}}
+echo "[chezmoi] [docker_compatibles.sh] ⏭️ Skipping container/k8s setup on a headless Linux server."
+exit 0
+{{ end -}}
 
 echo "[chezmoi] [docker_compatibles.sh] 🔌 Installing CNI plugins (for nerdctl networking)..."
 sudo apt -q install -y --no-install-recommends \

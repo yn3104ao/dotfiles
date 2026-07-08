@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+{{ if and .is_pure_linux (not .is_desktop) -}}
+echo "[chezmoi] [install_k3s.sh] ⏭️ Skipping container/k8s setup on a headless Linux server."
+exit 0
+{{ end -}}
 
 if ! command -v k3s > /dev/null 2>&1; then
     echo "[chezmoi] [install_k3s.sh] 🚀 k3s is not installed, installing k3s..."
