@@ -7,10 +7,12 @@ behavior = "drop"
 behavior = "own"
 {{ end }}
 backend = "ssh"
+{{ if not (and .is_pure_linux (not .is_desktop)) -}}
 {{ if eq .profile "work" -}}
 key = "{{ onepasswordRead "op://Employee/id_ed25519/public key" }}"
 {{ else if eq .profile "personal" -}}
 key = "{{ onepasswordRead "op://Personal/GitHub - Signing/public key" }}"
+{{ end -}}
 {{ end }}
 
 [signing.backends.ssh]
