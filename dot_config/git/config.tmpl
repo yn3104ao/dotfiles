@@ -2,9 +2,9 @@
     name = {{ .git_name }}
     email = {{ .git_email }}
     {{ if eq .profile "work" -}}
-    key = "{{ onepasswordRead "op://Employee/id_ed25519/public key" }}"
+    signingkey = "{{ onepasswordRead "op://Employee/id_ed25519/public key" }}"
     {{ else if eq .profile "personal" }}
-    key = "{{ onepasswordRead "op://Personal/GitHub - Signing/public key" }}"
+    signingkey = "{{ onepasswordRead "op://Personal/GitHub - Signing/public key" }}"
     {{ end }}
 
     # A little "annoyance" setting in case the email address is emptys
@@ -38,9 +38,9 @@
 
 [gpg.ssh]
     {{ if .is_windows }}
-        program = "/mnt/c/User/{{ .chezmoi.username }}/AppData/Local/Microsoft/WindowsApps/op-ssh.exe"
+        program = "/mnt/c/Users/{{ .chezmoi.username }}/AppData/Local/Microsoft/WindowsApps/op-ssh.exe"
     {{ else if .is_wsl }}
-        program = "/mnt/c/User/{{ .chezmoi.username }}/AppData/Local/Microsoft/WindowsApps/op-ssh-wsl.exe"
+        program = "/mnt/c/Users/{{ .chezmoi.username }}/AppData/Local/Microsoft/WindowsApps/op-ssh-wsl.exe"
     {{ else }}
         program = "/opt/1Password/op-ssh-sign"
     {{ end }}
