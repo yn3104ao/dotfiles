@@ -69,8 +69,8 @@ nerdctl run -it --rm \
   ubuntu:24.04 bash
 """
 
-[tasks."dind:up]
-description = ""
+[tasks."dind:up"]
+description = "Start a rootful Docker-in-Docker daemon"
 run = """
   sudo nerdctl run -d --name dind \
     --privileged \
