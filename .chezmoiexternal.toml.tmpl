@@ -13,10 +13,12 @@
    checksum/size (`gh api repos/<owner>/<repo>/releases`). Changing the URL
    invalidates chezmoi's cache, so the new asset is downloaded on the next apply.
 
-   Zellij is a POSIX terminal multiplexer, so these are only provisioned off
-   Windows.
+   The plugins are platform-independent WebAssembly, and zellij runs on Linux,
+   macOS, and (since v0.44.0) natively on Windows, so they are provisioned on
+   every platform. On Windows, zellij defaults to %APPDATA%\Zellij; the managed
+   PowerShell profile points ZELLIJ_CONFIG_DIR back here so all platforms share
+   one config/plugin location.
 */ -}}
-{{- if not .is_windows }}
 [".config/zellij/plugins/zjstatus.wasm"]
     type = "file"
     url = "https://github.com/dj95/zjstatus/releases/download/v0.22.0/zjstatus.wasm"
@@ -40,4 +42,3 @@
     url = "https://github.com/imsnif/monocle/releases/download/v0.100.2/monocle.wasm"
     refreshPeriod = "8760h"
     checksum = { sha256 = "4cb7e2cc912d975b4e755c93e44e7f0de62ef9240a09a89b735490cf4713792c", size = 2966889 }
-{{- end }}
