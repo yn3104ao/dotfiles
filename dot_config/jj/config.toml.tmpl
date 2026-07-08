@@ -1,7 +1,11 @@
 #:schema https://docs.jj-vcs.dev/latest/config-schema.json
 
 [signing]
+{{ if and .is_pure_linux (not .is_desktop) }}
+behavior = "drop"
+{{ else }}
 behavior = "own"
+{{ end }}
 backend = "ssh"
 {{ if eq .profile "work" -}}
 key = "{{ onepasswordRead "op://Employee/id_ed25519/public key" }}"
@@ -14,13 +18,14 @@ key = "{{ onepasswordRead "op://Personal/GitHub - Signing/public key" }}"
     program = "/mnt/c/Users/{{ .chezmoi.username }}/AppData/Local/Microsoft/WindowsApps/op-ssh.exe"
 {{  else if .is_wsl }}
     program = "/mnt/c/Users/{{ .chezmoi.username }}/AppData/Local/Microsoft/WindowsApps/op-ssh-wsl.exe"
-{{  else }}
+{{  else if .is_desktop }}
     program = "/opt/1Password/op-ssh-sign"
+{{  else }}
 {{ end }}
 
 [user]
-name = {{ .git_name }}
-email = {{ .git_email }}
+name = {{ .git_name | quote }}
+email = {{ .git_email | quote }}
 
 [ui]
 pager = "delta"
