@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# config.toml hash: {{ include "private_dot_config/mise/config.toml.tmpl" | sha256sum}}
+# config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
 
 # To avoid GitHub API rate limits, use the mise versions host and check for gh auth.
 export MISE_USE_VERSIONS_HOST=1
