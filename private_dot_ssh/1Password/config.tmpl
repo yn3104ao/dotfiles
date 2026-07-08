@@ -1,7 +1,7 @@
 # 1Password SSH agent configuration.
 # On WSL the agent socket is exposed via $SSH_AUTH_SOCK (see ~/.profile),
 # so no IdentityAgent directive is needed there.
-{{ if and .is_linux (not .is_wsl) }}
+{{ if and .is_pure_linux .is_desktop }}
 Host *
     IdentityAgent ~/.1password/agent.sock
 {{ end }}
