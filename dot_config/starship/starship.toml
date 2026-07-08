@@ -161,6 +161,7 @@ echo "$GIT_REMOTE_SYMBOL "
 when = 'git rev-parse --is-inside-work-tree 2> /dev/null'
 style = "white"
 format = '[$output]($style) '
+shell = ["bash", "--noprofile", "--norc"]
 
 [custom.git_scope]
 disabled = true
