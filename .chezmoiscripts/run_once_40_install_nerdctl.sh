@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! command -v nerdctl > /dev/null 2>&1; then
+if command -v nerdctl > /dev/null 2>&1; then
     echo "[chezmoi] [install_nerdctl.sh] nerdctl is already installed. Skipping."
     exit 0
 fi
