@@ -1,0 +1,58 @@
+{{ if .is_windows }}
+# ----- mise -----
+if (Get-Command mise -ErrorAction SilentlyContinue) {
+    mise activate pwsh | Out-String | Invoke-Expression
+}
+
+# ----- fzf -----
+$script:FzfCommand = (Get-Command fzf -CommandType Application -ErrorAction SilentlyContinue).Source
+
+# ----- starship -----
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Invoke-Expression (&starship init powershell)
+}
+
+# ----- atuin -----
+if ((Get-Command atuin -ErrorAction SilentlyContinue) -and (Get-Module -ListAvailable -Name PSReadLine)) {
+    Invoke-Expression (& { (atuin init powershell | Out-String) })
+}
+
+# ----- zoxide -----
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
+}
+
+# ----- Aliases / functions -----
+if (Get-Command eza -ErrorAction SilentlyContinue) {
+    Remove-Item Alias:ls -Force -ErrorAction SilentlyContinue
+    function global:ls { eza --icons @args }
+    function global:ll { eza -lah --icons @args }
+    function global:tree { eza --tree --icons @args }
+}
+
+if (Get-Command bat -ErrorAction SilentlyContinue) {
+    Remove-Item Alias:cat -Force -ErrorAction SilentlyContinue
+    function global:cat { bat @args }
+}
+
+if (Get-Command rg -ErrorAction SilentlyContinue) {
+    Remove-Item Alias:grep -Force -ErrorAction SilentlyContinue
+    function global:grep { rg @args }
+}
+
+if (Get-Command fd -ErrorAction SilentlyContinue) {
+    function global:find { fd @args }
+}
+
+if (Get-Command git -ErrorAction SilentlyContinue) {
+    function global:gg { git @args }
+}
+
+if (Get-Command zellij -ErrorAction SilentlyContinue) {
+    function global:zlj { zellij @args }
+}
+
+if ($script:FzfCommand -and (Get-Command bat -ErrorAction SilentlyContinue)) {
+    function global:fzf { & $script:FzfCommand --preview 'bat --color=always --style=numbers --line-range=:500 {}' @args }
+}
+{{ end }}
