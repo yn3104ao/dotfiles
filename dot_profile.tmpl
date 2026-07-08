@@ -20,7 +20,7 @@ fi
 
 # ----- 1Password SSH agent-----
 {{ if .is_wsl }}
-export SSH_AUTH_SOCK="/mnt/c/User/{{ .chezmoi.username }}/AppData/Local/1Password/app/ssh-agent.sock"
+export SSH_AUTH_SOCK="/mnt/c/Users/{{ .chezmoi.username }}/AppData/Local/1Password/app/ssh-agent.sock"
 {{ end }}
 
 # ----- fzf -----
