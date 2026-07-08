@@ -11,6 +11,22 @@
 {{-         $is_wsl = true }}
 {{-     end -}}
 {{- end -}}
+{{- $is_pure_linux := and $is_linux (not $is_wsl) -}}
+
+{{/* Desktop vs server. Windows and WSL are always treated as desktop. */}}
+{{/* Pure Linux is auto-detected (GUI session or 1Password desktop app) and */}}
+{{/* can be overridden interactively via promptBoolOnce.                    */}}
+{{- $is_desktop := true -}}
+{{- if $is_pure_linux -}}
+{{-     $detected := false -}}
+{{-     if or (env "DISPLAY") (env "WAYLAND_DISPLAY") -}}
+{{-         $detected = true -}}
+{{-     end -}}
+{{-     if stat "/opt/1Password" -}}
+{{-         $detected = true -}}
+{{-     end -}}
+{{-     $is_desktop = promptBoolOnce . "is_desktop" "Is this a desktop (GUI) machine?" $detected -}}
+{{- end -}}
 
 [data]
     profile = {{ $profile | quote }}
@@ -19,3 +35,5 @@
     is_windows = {{ $is_windows }}
     is_linux = {{ $is_linux }}
     is_wsl = {{ $is_wsl }}
+    is_pure_linux = {{ $is_pure_linux }}
+    is_desktop = {{ $is_desktop }}
