@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+{{ if and .is_pure_linux (not .is_desktop) -}}
+echo "[chezmoi] [docker-wrapper.sh] ⏭️ Skipping container/k8s setup on a headless Linux server."
+exit 0
+{{ end -}}
 
 BIN_DIR="$HOME/.local/bin"
 DOCKER_WRAPPER="$BIN_DIR/docker"
