@@ -1,3 +1,5 @@
+# Environment variables only (read by login shells); interactive setup lives in ~/.bashrc
+
 # ----- PATH -----
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
@@ -12,41 +14,25 @@ export DOCKER_HOST=unix:///run/k3s/containerd/containerd.sock
 fi
 
 # ----- mise -----
-if [ -f "$HOME/.local/bin/mise" ]; then
-    eval "$($HOME/.local/bin/mise activate bash)"
-    export MISE_STRICT=0
-    export MISE_USE_VERSIONS_HOST=1
+export MISE_STRICT=0
+export MISE_USE_VERSIONS_HOST=1
+{{ if not .is_windows }}
+# shims make the tools visible to non-interactive login shells (e.g. `bash -l -c zellij`)
+if command -v mise > /dev/null 2>&1; then
+    eval "$(mise activate bash --shims)"
 fi
+{{ end }}
 
 # ----- 1Password SSH agent-----
 {{ if .is_wsl }}
 export SSH_AUTH_SOCK="/mnt/c/Users/{{ .chezmoi.username }}/AppData/Local/1Password/app/ssh-agent.sock"
 {{ end }}
 
-# ----- fzf -----
-if command -v fzf > /dev/null 2>&1; then
-    FZF_CTRL_R_COMMAND= eval "$(fzf --bash)"
-fi
-
-# ----- starship -----
-if command -v starship > /dev/null 2>&1; then
-    eval "$(starship init bash)"
-fi
-
-# ----- atuin -----
-if command -v atuin > /dev/null 2>&1; then
-    eval "$(atuin init bash --disable-up-arrow)"
-fi
-
-# ----- zoxide -----
-if command -v zoxide > /dev/null 2>&1; then
-    eval "$(zoxide init bash --cmd cd)"
-fi
-
-# ----- souce-chain -----
-if [ -f "$HOME/.safe-chain/scripts/init-posix.sh" ]; then
-    . "$HOME/.safe-chain/scripts/init-posix.sh"
-fi
+{{ if .is_windows }}
+# ----- zellij -----
+# Same location as the PowerShell profile (zellij defaults to %APPDATA%\Zellij on Windows)
+export ZELLIJ_CONFIG_DIR="$HOME/.config/zellij"
+{{ end }}
 
 {{ if .is_wsl }}
 # ----- wslu -----
@@ -54,3 +40,5 @@ if command -v wslusc > /dev/null 2>&1; then
     export BROWSER='wslusc'
 fi
 {{ end }}
+
+export DOTFILES_PROFILE_LOADED=1

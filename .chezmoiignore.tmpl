@@ -7,11 +7,8 @@ AppData/
 {{ end }}
 
 {{ if .is_windows }}
-# POSIX shell dotfiles and scripts (Linux / WSL only)
-.bashrc
-.bash_profile
-.profile
-**/*.sh
+# chezmoi cannot execute .sh scripts on Windows
+.chezmoiscripts/*.sh
 # Helix reads %APPDATA%\helix on Windows (deployed via AppData/Roaming/helix)
 .config/helix
 {{ end }}
