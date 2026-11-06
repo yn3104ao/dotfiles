@@ -1,0 +1,55 @@
+# herdr config. Reload a running server with `herdr server reload-config`.
+# Windows reads %APPDATA%\herdr\config.toml (deployed from AppData/Roaming/herdr).
+# Reference: https://herdr.dev/docs/config-reference/
+
+# Skip first-run setup (it writes this itself once completed).
+onboarding = false
+
+[theme]
+name = "catppuccin"
+
+[update]
+# Versions are managed by mise (dot_config/mise/config.toml).
+version_check = false
+
+[ui]
+copy_on_select = true
+mouse_capture = true
+# Frame a lone pane as well, like zellij's pane_frames.
+pane_borders = "always"
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "hostname" },
+  { type = "datetime", format = "%Y-%m-%d %H:%M" },
+]
+tab_bar_right_separator = " · "
+
+[keys]
+# Same prefix as zellij's tmux mode.
+prefix = "ctrl+b"
+
+# Popups for the tools installed by mise. The zellij plugin binds
+# (send-keys, monocle, forgot) have no counterpart; `prefix+?` lists all keys.
+[[keys.command]]
+key = "prefix+alt+l"
+type = "popup"
+command = "fend"
+description = "calculator (fend)"
+width = "60%"
+height = "50%"
+
+[[keys.command]]
+key = "prefix+alt+b"
+type = "popup"
+command = "btm"
+description = "system monitor (bottom)"
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+f"
+type = "popup"
+command = "hx ."
+description = "file picker / editor (helix)"
+width = "90%"
+height = "90%"

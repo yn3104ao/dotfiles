@@ -25,6 +25,9 @@ delta = "0.18.2"
 # Terminal multiplexer (0.44.0+ ships native Windows binaries)
 zellij = "0.44.3"
 
+# Agent-oriented terminal multiplexer (also available natively on Windows)
+herdr = "0.9.5"
+
 # Editor
 helix = "25.07.1"
 
