@@ -15,7 +15,6 @@ version_check = false
 [ui]
 copy_on_select = true
 mouse_capture = true
-host_cursor = "native"
 # Frame a lone pane as well, like zellij's pane_frames.
 pane_borders = "always"
 tab_bar_right = [
@@ -24,6 +23,9 @@ tab_bar_right = [
   { type = "datetime", format = "%Y-%m-%d %H:%M" },
 ]
 tab_bar_right_separator = " · "
+
+[ui.sidebar.agents]
+rows = [["state_icon", "workspace", "agent"]]
 
 [keys]
 # Same prefix as zellij's tmux mode.
@@ -54,3 +56,6 @@ command = "hx ."
 description = "file picker / editor (helix)"
 width = "90%"
 height = "90%"
+
+[experimental]
+reveal_hidden_cursor_for_cjk_ime = true
