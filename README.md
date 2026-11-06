@@ -42,11 +42,27 @@ Waylandコンポジタである **Hyprland** の世界観を意識し、スタ�
 ## 🚀 Directory Structure & Setup
 
 環境構築は chezmoi のスクリプト（`.chezmoiscripts`）によって自動化されています。
+Linux (`*.sh`) と Windows (`*.ps1`) で同じ番号のスクリプトが同じ役割を担います。
 
 ### 主なセットアップの流れ
-1. **Bootstrap**: 必要なベース環境へのパス通しなど。
-2. **op-wrapper setup**: 環境に合わせた 1Password CLI (`op.exe`) のラッパーを作成し、クレデンシャル管理を準備。
-3. **mise install**: `mise.toml` に定義された最新のRust製ツール群を並行インストール（GitHub APIの制限回避機構付き）。
+| # | 役割 | Linux / WSL | Windows |
+|---|---|---|---|
+| 00 / 10 | Bootstrap・1Password CLI (`op.exe`) ラッパー | ✅ | — |
+| 01 | セキュリティツール (safe-chain) | ✅ | ✅ |
+| 05 | コアパッケージ | apt | winget |
+| 20 | mise 本体のインストール | `mise.run` | winget + shims を User PATH に追加 |
+| 40-53 / 90 | コンテナ環境 (nerdctl / k3s / BuildKit)・クリーンアップ | ✅ | — |
+| after 06 | フォント (Moralerspace HW, `.chezmoiexternal` で取得) | `fc-cache` | ユーザーフォントとして登録 |
+| after 91 | **mise install**: `config.toml` のツール群をインストール（GitHub APIの制限回避機構付き） | ✅ | ✅ |
+
+Windows のスクリプトは Windows PowerShell 5.1 で実行されるため、ASCII のみ・5.1 互換で記述し、
+共通処理は `.chezmoitemplates/windows/prelude.ps1` にまとめています。
+
+### シェルと WezTerm
+- **bash 系**: `.profile` は環境変数のみ、対話用の初期化（starship / atuin / zoxide / fzf / エイリアス）は `.bashrc` に集約。Windows では Git Bash にも配置されます（mise は shims 経由）。
+- **atuin**: 履歴の記録に bash-preexec（`.chezmoiexternal` で取得）を使用。検索は **Ctrl+R のみ**で、↑キーは通常の「1つ前のコマンド」のままです（bash / PowerShell 共通）。
+- **WezTerm の起動シェル**: WSL の Ubuntu が登録済みなら WSL、無ければ pwsh。いずれも zellij があれば自動で attach し、無ければ素のシェルを開きます。
+  Ctrl+Shift+L のランチャーから pwsh / Git Bash / WSL（存在するものだけ）を選べます。テーマは常に Catppuccin Mocha です。
 
 ### 適用方法
 ```bash

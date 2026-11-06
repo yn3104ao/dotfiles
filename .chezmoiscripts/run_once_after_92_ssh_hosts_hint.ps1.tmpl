@@ -1,0 +1,10 @@
+{{ if .is_windows -}}
+{{ template "windows/prelude.ps1" . }}
+$script:ScriptName = 'ssh-hosts-hint.ps1'
+
+Write-Step 'To connect to other machines from WezTerm (Ctrl+Shift+L), add them to ~/.ssh/config by hand.'
+Write-Step '~/.ssh/config is only created once and never overwritten. Example:'
+Write-Host '  Host linux-dev'
+Write-Host '      HostName 10.x.x.x'
+Write-Host '      User user'
+{{ end -}}

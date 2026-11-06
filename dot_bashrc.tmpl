@@ -1,10 +1,56 @@
+# Non-login shells (e.g. GNOME Terminal) have not read ~/.profile yet
+[ -z "$DOTFILES_PROFILE_LOADED" ] && [ -f ~/.profile ] && . ~/.profile
+
+[[ $- == *i* ]] || return
+
 {{ if not .is_windows }}
-[ -f ~/.profile ] && . ~/.profile
+# ----- mise -----
+# Windows relies on the shims added by ~/.profile
+if command -v mise > /dev/null 2>&1; then
+    eval "$(mise activate bash)"
+fi
 {{ end }}
+
+# ----- bash-preexec (required by atuin) -----
+if [ -f "$HOME/.local/share/bash-preexec/bash-preexec.sh" ]; then
+    . "$HOME/.local/share/bash-preexec/bash-preexec.sh"
+fi
+
+# ----- fzf -----
+if command -v fzf > /dev/null 2>&1; then
+    FZF_CTRL_R_COMMAND= eval "$(fzf --bash)"
+fi
+
+# ----- starship -----
+if command -v starship > /dev/null 2>&1; then
+    # chezmoi deploys the config to ~/.config/starship/, not starship's default ~/.config/starship.toml
+    export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
+    eval "$(starship init bash)"
+fi
+
+# ----- atuin -----
+# Ctrl+R only; Up keeps the shell's normal previous-command behavior
+if command -v atuin > /dev/null 2>&1; then
+    eval "$(atuin init bash --disable-up-arrow)"
+fi
+
+# ----- zoxide -----
+if command -v zoxide > /dev/null 2>&1; then
+    eval "$(zoxide init bash --cmd cd)"
+fi
+
+# ----- editor -----
+if command -v hx > /dev/null 2>&1; then
+    export EDITOR='hx'
+fi
+
+# ----- safe-chain -----
+if [ -f "$HOME/.safe-chain/scripts/init-posix.sh" ]; then
+    . "$HOME/.safe-chain/scripts/init-posix.sh"
+fi
 
 # ----- Aliases -----
 
-{{ if not .is_windows }}
 alias sbrc='source ~/.bashrc'
 alias ls='eza --icons'
 alias ll='eza -lah --icons'
@@ -13,11 +59,12 @@ alias cat='bat'
 alias find='fd'
 alias grep='rg'
 alias du='dust -r -d 1'
+{{ if not .is_windows }}
 alias kube='nerdctl'
+{{ end }}
 alias gg='git'
 alias zlj='zellij'
 alias fzf='fzf --preview '\''bat --color=always --style=numbers --line-range=:500 {}'\'
-{{ end }}
 
 {{ if .is_wsl }}
 alias git='git.exe'
@@ -26,3 +73,45 @@ alias ssh='ssh.exe'
 alias ssh-add='ssh-add.exe'
 alias op='op.exe'
 {{ end }}
+
+# ----- Functions -----
+if command -v yazi > /dev/null 2>&1; then
+    export YAZI_CONFIG_HOME="$HOME/.config/yazi"
+    function y() {
+        local tmp cwd status
+        tmp="$(mktemp)" || return
+        command yazi "$@" --cwd-file="$tmp"
+        status=$?
+        cwd="$(< "$tmp")"
+        command rm -f -- "$tmp"
+        if [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            builtin cd -- "$cwd" || return
+        fi
+        return "$status"
+    }
+fi
+
+if command -v gwq > /dev/null 2>&1 && command -v fzf > /dev/null 2>&1 && command -v jq > /dev/null 2>&1; then
+    function gw() {
+        local worktrees paths target
+        worktrees="$(gwq list -g --json)" || return
+        [[ "$worktrees" == *'['* ]] || return
+        paths="$(printf '%s\n' "$worktrees" | command jq -r '.[].path')" || return
+        [ -n "$paths" ] || return
+        target="$(printf '%s\n' "$paths" | command fzf --no-preview --prompt='Worktree > ' --height=40% --layout=reverse)" || return
+        [ -n "$target" ] && builtin cd -- "$target"
+    }
+fi
+
+if command -v fd > /dev/null 2>&1 && command -v fzf > /dev/null 2>&1; then
+    function cdf() {
+        local root target
+        root="${1:-$HOME}"
+        if [ ! -d "$root" ]; then
+            printf 'Not a directory: %s\n' "$root" >&2
+            return 2
+        fi
+        target="$( { printf '%s\n' "$root"; command fd --type d --hidden --no-ignore --exclude .git --exclude node_modules . "$root"; } | command fzf --no-preview --prompt='Directory > ' --height=40% --layout=reverse )" || return
+        [ -n "$target" ] && builtin cd -- "$target"
+    }
+fi

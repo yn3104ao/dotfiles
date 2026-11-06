@@ -31,9 +31,9 @@ tabline.setup(
             tabline_c = { ' ' },
             tab_active = { 'index' },
             tab_inactive = { 'index' },
-            tabline_x = { 'cpu' , 'ram' },
-            -- The time isn't updating (should it be synchronized with `update_right_status`?)
-            tabline_y = { wezterm.nerdfonts.md_calendar_clock .. ' ' .. wezterm.time():format('%Y/%m/%d %H:%M') .. ' ' },
+            -- wmic (the plugin default) is gone on current Windows 11; query via PowerShell and poll rarely since the call blocks the GUI
+            tabline_x = { { 'cpu', use_pwsh = true, throttle = 10 }, { 'ram', use_pwsh = true, throttle = 10 } },
+            tabline_y = { { 'datetime', style = '%Y/%m/%d %H:%M', icon = wezterm.nerdfonts.md_calendar_clock, hour_to_icon = false } },
             tabline_z = { { 'domain' , padding = { left = 0, right = 1 } } },
         }
     }
@@ -43,6 +43,7 @@ tabline.setup(
 -- ==========================================
 -- Override Original Config
 -- ==========================================
-config = require("config")
+-- dofile instead of require: wezterm.run_child_process (used for shell detection) cannot yield inside require
+config = dofile(assert(package.searchpath("config", package.path)))
 
 return config

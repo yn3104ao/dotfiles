@@ -1,0 +1,27 @@
+{{ if .is_windows -}}
+# .chezmoiexternal hash: {{ include ".chezmoiexternal.toml.tmpl" | sha256sum }}
+{{ template "windows/prelude.ps1" . }}
+$script:ScriptName = 'install_fonts.ps1'
+
+# The font files are extracted by .chezmoiexternal; Windows additionally needs
+# a per-user registry entry for each file to make the fonts usable.
+$fontDir = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts\Moralerspace'
+if (-not (Test-Path $fontDir)) {
+    Write-Step "$fontDir does not exist. Skipping font registration."
+    exit 0
+}
+
+$registryPath = 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts'
+if (-not (Test-Path $registryPath)) {
+    New-Item -Path $registryPath -Force | Out-Null
+}
+
+Write-Step 'Registering Moralerspace fonts for the current user...'
+foreach ($font in Get-ChildItem -Path $fontDir -Filter '*.ttf') {
+    New-ItemProperty -Path $registryPath -Name "$($font.BaseName) (TrueType)" -Value $font.FullName -PropertyType String -Force | Out-Null
+    [void](Add-FontResource $font.FullName)
+}
+Send-BroadcastMessage 0x1D
+
+Write-Step 'Font registration completed.'
+{{ end -}}

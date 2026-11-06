@@ -1,0 +1,23 @@
+{{ if .is_windows }}
+# Shared environment variables for all PowerShell hosts
+
+# ----- mise -----
+$env:MISE_STRICT = '0'
+$env:MISE_USE_VERSIONS_HOST = '1'
+
+# ----- editor -----
+$env:EDITOR = 'hx'
+
+# ----- starship -----
+# chezmoi deploys the config to ~/.config/starship/, not starship's default ~/.config/starship.toml
+$env:STARSHIP_CONFIG = Join-Path $HOME '.config\starship\starship.toml'
+
+# ----- yazi -----
+$env:YAZI_CONFIG_HOME = Join-Path $HOME '.config\yazi'
+
+# ----- zellij -----
+# Zellij on Windows defaults to %APPDATA%\Zellij; use the shared chezmoi config.
+$env:ZELLIJ_CONFIG_DIR = Join-Path $HOME '.config\zellij'
+# Plugin `file:$HOME/...` paths require the HOME environment variable.
+if (-not $env:HOME) { $env:HOME = $HOME }
+{{ end }}

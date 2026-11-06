@@ -3,7 +3,15 @@ set -euo pipefail
 
 # config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
 
-# To avoid GitHub API rate limits, use the mise versions host and check for gh auth.
+# chezmoi passes on the PATH it was started with, which does not contain
+# ~/.local/bin (where run_once_20_install_mise.sh puts mise) on a fresh machine.
+export PATH="$HOME/.local/bin:$PATH"
+if ! command -v mise > /dev/null 2>&1; then
+    echo "[chezmoi] [mise-install.sh] ❌ mise command not found. run_once_20_install_mise.sh should have installed it." >&2
+    exit 1
+fi
+
+# To avoid GitHub API rate limits, use the mise versions host and a gh token.
 export MISE_USE_VERSIONS_HOST=1
 
 # Check if logged in to GitHub CLI to avoid API rate limits.
@@ -12,6 +20,13 @@ if command -v gh &> /dev/null; then
         echo "[chezmoi] [mise-install.sh] 🔐 You are not logged in to GitHub CLI. Please log in to avoid API rate limits."
         gh auth login
     fi
+    if [ -z "${GITHUB_TOKEN:-}" ]; then
+        GH_TOKEN_VALUE="$(gh auth token 2> /dev/null || true)"
+        if [ -n "$GH_TOKEN_VALUE" ]; then
+            export GITHUB_TOKEN="$GH_TOKEN_VALUE"
+        fi
+        unset GH_TOKEN_VALUE
+    fi
 else
     echo "[chezmoi] [mise-install.sh] ⚠️ gh command not found. Skipping GitHub auth check. This might lead to API rate limits."
 fi
@@ -19,4 +34,12 @@ fi
 echo "[chezmoi] [mise-install.sh] 🔄 Changes to mise.toml have been detected. Proceeding with tool installation/update..."
 
 mise install --yes
+mise prune --yes
+
+export YAZI_CONFIG_HOME="$HOME/.config/yazi"
+if [ ! -f "$YAZI_CONFIG_HOME/flavors/catppuccin-mocha.yazi/flavor.toml" ]; then
+    echo "[chezmoi] [mise-install.sh] Installing the Yazi Catppuccin Mocha flavor..."
+    mise exec -- ya pkg add yazi-rs/flavors:catppuccin-mocha
+fi
+
 echo "[chezmoi] [mise-install.sh] ✅ The installation is complete!"

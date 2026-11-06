@@ -1,0 +1,44 @@
+{{ if .is_windows -}}
+{{ template "windows/prelude.ps1" . }}
+$script:ScriptName = 'install_mise.ps1'
+
+Update-SessionPath
+if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+    Install-WingetPackage 'jdx.mise'
+    Update-SessionPath
+}
+if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+    throw 'mise was installed but is still not found on PATH.'
+}
+Invoke-Native 'mise' @('--version')
+
+# Put the mise shims on the user PATH so that tools are also available to
+# programs that do not load the PowerShell profile (VS Code, GUI apps, cmd).
+$miseDataDir = if ($env:MISE_DATA_DIR) { $env:MISE_DATA_DIR } else { Join-Path $env:LOCALAPPDATA 'mise' }
+$shimsDir = Join-Path $miseDataDir 'shims'
+$shimsEntry = if ($env:MISE_DATA_DIR) { $shimsDir } else { '%LOCALAPPDATA%\mise\shims' }
+
+$key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment', $true)
+try {
+    # Read the raw value so existing %VARIABLE% references are preserved.
+    $raw = [string]$key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+    $entries = @($raw -split ';' | Where-Object { $_ })
+    $present = @($entries | Where-Object {
+            [Environment]::ExpandEnvironmentVariables($_).TrimEnd('\') -ieq $shimsDir.TrimEnd('\')
+        })
+    if ($present.Count -eq 0) {
+        $key.SetValue('Path', ((@($shimsEntry) + $entries) -join ';'), [Microsoft.Win32.RegistryValueKind]::ExpandString)
+        Send-BroadcastMessage 0x1A 'Environment'
+        Write-Step "Added $shimsDir to the user PATH."
+    } else {
+        Write-Step 'mise shims directory is already on the user PATH.'
+    }
+} finally {
+    $key.Close()
+}
+Update-SessionPath
+
+# Tool installation is handled by run_onchange_after_91_mise-install, which
+# runs after ~/.config/mise/config.toml has been written.
+Write-Step 'mise setup completed.'
+{{ end -}}

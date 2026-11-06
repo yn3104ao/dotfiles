@@ -1,5 +1,43 @@
+{{ if .is_windows -}}
 # config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+{{ template "windows/prelude.ps1" . }}
+$script:ScriptName = 'mise-install.ps1'
 
-Write-Host "[chezmoi] [mise-install.ps1] 🔄 Changes to mise.toml have been detected. Proceeding with tool installation/update..."
-mise install --yes
-Write-Host "[chezmoi] [mise-install.ps1] ✅ The installation is complete!"
+Update-SessionPath
+if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+    throw 'mise command not found. run_once_20_install_mise should have installed it.'
+}
+
+# To avoid GitHub API rate limits, use the mise versions host and a gh token.
+$env:MISE_USE_VERSIONS_HOST = '1'
+
+if (Get-Command gh -ErrorAction SilentlyContinue) {
+    if (-not (Test-Native 'gh' @('auth', 'status'))) {
+        Write-Step 'You are not logged in to GitHub CLI. Please log in to avoid API rate limits.'
+        Invoke-Native 'gh' @('auth', 'login')
+    }
+    if (-not $env:GITHUB_TOKEN) {
+        $ErrorActionPreference = 'Continue'
+        $token = & gh auth token 2>$null
+        $ErrorActionPreference = 'Stop'
+        if ($LASTEXITCODE -eq 0 -and $token) {
+            $env:GITHUB_TOKEN = ([string]$token).Trim()
+        }
+    }
+} else {
+    Write-Step 'gh command not found. Skipping GitHub auth check. This might lead to API rate limits.'
+}
+
+Write-Step 'Changes to mise config.toml have been detected. Proceeding with tool installation/update...'
+Invoke-Native 'mise' @('install', '--yes')
+Invoke-Native 'mise' @('prune', '--yes')
+
+$env:YAZI_CONFIG_HOME = Join-Path $HOME '.config\yazi'
+$flavorFile = Join-Path $env:YAZI_CONFIG_HOME 'flavors\catppuccin-mocha.yazi\flavor.toml'
+if (-not (Test-Path -LiteralPath $flavorFile -PathType Leaf)) {
+    Write-Step 'Installing the Yazi Catppuccin Mocha flavor...'
+    Invoke-Native 'mise' @('exec', '--', 'ya', 'pkg', 'add', 'yazi-rs/flavors:catppuccin-mocha')
+}
+
+Write-Step 'The installation is complete!'
+{{ end -}}

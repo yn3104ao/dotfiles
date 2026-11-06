@@ -1,0 +1,16 @@
+[tasks."patch:create"]
+description = "Create an mbox patch series against origin/main"
+run = "git format-patch --stdout --binary origin/main > changes.patch"
+
+[tasks."patch:apply"]
+description = "Apply commits from a format-patch file with git am"
+usage = '''
+arg "<patch-file>" help="Patch file to apply"
+'''
+run = '''
+case "${usage_patch_file?}" in
+	*.patch) git am -- "${usage_patch_file?}" ;;
+	*) printf 'Expected a .patch file: %s\n' "${usage_patch_file?}" >&2; exit 2 ;;
+esac
+'''
+run_windows = '''pwsh.exe -NoProfile -Command "if ([IO.Path]::GetExtension($env:usage_patch_file) -ine '.patch') { throw 'Expected a .patch file' }; git am -- $env:usage_patch_file"'''

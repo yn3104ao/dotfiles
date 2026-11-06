@@ -5,7 +5,7 @@ if (Get-Command mise -ErrorAction SilentlyContinue) {
 }
 
 # ----- fzf -----
-$script:FzfCommand = (Get-Command fzf -CommandType Application -ErrorAction SilentlyContinue).Source
+$script:FzfCommand = (Get-Command fzf -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
 
 # ----- starship -----
 if (Get-Command starship -ErrorAction SilentlyContinue) {
@@ -15,6 +15,8 @@ if (Get-Command starship -ErrorAction SilentlyContinue) {
 # ----- atuin -----
 if ((Get-Command atuin -ErrorAction SilentlyContinue) -and (Get-Module -ListAvailable -Name PSReadLine)) {
     Invoke-Expression (& { (atuin init powershell | Out-String) })
+    # The init script always binds Up to atuin (no --disable-up-arrow equivalent); keep Up as plain history, Ctrl+R only for atuin
+    Set-PSReadLineKeyHandler -Chord UpArrow -Function PreviousHistory
 }
 
 # ----- zoxide -----
@@ -44,21 +46,69 @@ if (Get-Command fd -ErrorAction SilentlyContinue) {
     function global:find { fd @args }
 }
 
+if (Get-Command dust -ErrorAction SilentlyContinue) {
+    function global:du { dust -r -d 1 @args }
+}
+
 if (Get-Command git -ErrorAction SilentlyContinue) {
     function global:gg { git @args }
 }
 
 if (Get-Command zellij -ErrorAction SilentlyContinue) {
-    # Zellij on Windows defaults to %APPDATA%\Zellij; redirect it to the
-    # chezmoi-managed ~/.config/zellij so every platform shares one config.
-    $env:ZELLIJ_CONFIG_DIR = Join-Path $HOME '.config\zellij'
-    # Plugin `file:$HOME/...` paths are shell-expanded and need the HOME env
-    # var, which Windows does not set by default.
-    if (-not $env:HOME) { $env:HOME = $HOME }
     function global:zlj { zellij @args }
 }
 
 if ($script:FzfCommand -and (Get-Command bat -ErrorAction SilentlyContinue)) {
     function global:fzf { & $script:FzfCommand --preview 'bat --color=always --style=numbers --line-range=:500 {}' @args }
+}
+
+if (Get-Command yazi -ErrorAction SilentlyContinue) {
+    function global:y {
+        $tmp = [System.IO.Path]::GetTempFileName()
+        try {
+            yazi @args --cwd-file="$tmp"
+            $cwd = Get-Content -LiteralPath $tmp -Raw -Encoding UTF8
+            if (-not [String]::IsNullOrWhiteSpace($cwd)) {
+                $cwd = $cwd.TrimEnd("`r", "`n")
+                if ($cwd -ne $PWD.Path) {
+                    Set-Location -LiteralPath $cwd
+                }
+            }
+        } finally {
+            Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+if ((Get-Command gwq -ErrorAction SilentlyContinue) -and $script:FzfCommand) {
+    function global:gw {
+        $worktrees = gwq list -g --json | Out-String
+        if ($LASTEXITCODE -ne 0 -or -not $worktrees.TrimStart().StartsWith('[')) { return }
+        $target = $worktrees | ConvertFrom-Json | ForEach-Object { $_.path } |
+            & $script:FzfCommand --no-preview --prompt='Worktree > ' --height=40% --layout=reverse
+        if ($LASTEXITCODE -eq 0 -and $target) {
+            Set-Location -LiteralPath $target
+        }
+    }
+}
+
+if ((Get-Command fd -ErrorAction SilentlyContinue) -and $script:FzfCommand) {
+    function global:cdf {
+        param([string]$Root = $HOME)
+        if (-not (Test-Path -LiteralPath $Root -PathType Container)) {
+            Write-Error "Not a directory: $Root"
+            return
+        }
+        $directories = @($Root) + @(fd --type d --hidden --no-ignore --exclude .git --exclude node_modules . $Root)
+        $target = $directories | & $script:FzfCommand --no-preview --prompt='Directory > ' --height=40% --layout=reverse
+        if ($LASTEXITCODE -eq 0 -and $target) {
+            Set-Location -LiteralPath $target
+        }
+    }
+}
+
+# ----- safe-chain -----
+if (Test-Path (Join-Path $HOME '.safe-chain\scripts\init-pwsh.ps1')) {
+    . (Join-Path $HOME '.safe-chain\scripts\init-pwsh.ps1')
 }
 {{ end }}

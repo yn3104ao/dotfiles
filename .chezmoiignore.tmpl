@@ -1,18 +1,21 @@
 README.md
+mise.toml
 
 {{ if not .is_windows }}
-# Windows-only artifacts (PowerShell scripts, Windows Terminal, AppData)
+# Windows-only artifacts (PowerShell scripts, AppData incl. Windows Terminal)
 **/*.ps1
-**/WindowsTerminal/
 AppData/
 {{ end }}
 
 {{ if .is_windows }}
-# POSIX shell dotfiles and scripts (Linux / WSL only)
-.bashrc
-.bash_profile
-.profile
-**/*.sh
+# chezmoi cannot execute .sh scripts on Windows
+.chezmoiscripts/*.sh
+# Helix reads %APPDATA%\helix on Windows (deployed via AppData/Roaming/helix)
+.config/helix
+# herdr reads %APPDATA%\herdr on Windows (deployed via AppData/Roaming/herdr)
+.config/herdr
+# Lazygit reads %LOCALAPPDATA%\lazygit on Windows (deployed via AppData/Local/lazygit)
+.config/lazygit
 {{ end }}
 
 {{/*

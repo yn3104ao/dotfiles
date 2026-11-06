@@ -1,0 +1,24 @@
+{{ if .is_windows -}}
+{{ template "windows/prelude.ps1" . }}
+$script:ScriptName = 'install_security_tools.ps1'
+
+Update-SessionPath
+$safeChainExe = Join-Path $HOME '.safe-chain\bin\safe-chain.exe'
+if ((Get-Command safe-chain -ErrorAction SilentlyContinue) -or (Test-Path $safeChainExe)) {
+    Write-Step 'safe-chain is already installed. Skipping installation.'
+    exit 0
+}
+
+Write-Step 'Installing safe-chain...'
+$installer = Join-Path $env:TEMP 'install-safe-chain.ps1'
+Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/AikidoSec/safe-chain/releases/latest/download/install-safe-chain.ps1' -OutFile $installer
+try {
+    # Run in a child process so the installer is not affected by this script's
+    # ErrorActionPreference, and its exit code is still checked.
+    Invoke-Native 'powershell' @('-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $installer)
+} finally {
+    Remove-Item $installer -ErrorAction SilentlyContinue
+}
+
+Write-Step 'safe-chain installation completed!'
+{{ end -}}

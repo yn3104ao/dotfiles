@@ -1,0 +1,12 @@
+[mgr]
+# Pane ratios (left: parent directory, center: current directory, right: preview)
+ratio = [1, 3, 4]
+sort_by = "natural"
+sort_dir_first = true
+# Show hidden files (e.g. .gitignore) by default; toggle with z
+show_hidden = true
+show_symlink = true
+
+[preview]
+max_width = 1000
+max_height = 1000

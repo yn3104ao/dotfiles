@@ -1,0 +1,7 @@
+{{- /* herdr reads %APPDATA%\herdr on Windows; reuse the ~/.config/herdr source. */ -}}
+{{- include "dot_config/herdr/config.toml" }}
+
+# herdr does not see the Store pwsh app execution alias on PATH and would fall
+# back to Windows PowerShell 5.1, so name pwsh explicitly.
+[terminal]
+default_shell = "pwsh.exe"

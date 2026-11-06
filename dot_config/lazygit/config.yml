@@ -1,0 +1,35 @@
+gui:
+  # Nerd Fonts v3 icons
+  nerdFontsVersion: "3"
+  border: "cornered"
+  # Catppuccin Mocha palette
+  theme:
+    activeBorderColor:
+      - "#89b4fa" # Blue
+      - bold
+    inactiveBorderColor:
+      - "#a6adc8" # Subtext0
+    optionsTextColor:
+      - "#89b4fa" # Blue
+    selectedLineBgColor:
+      - "#313244" # Surface0
+    cherryPickedCommitBgColor:
+      - "#45475a" # Surface1
+    cherryPickedCommitFgColor:
+      - "#89b4fa" # Blue
+    unstagedChangesColor:
+      - "#f38ba8" # Red
+    defaultFgColor:
+      - "#cdd6f4" # Text
+    searchingActiveBorderColor:
+      - "#f9e2af" # Yellow
+
+os:
+  # Open files with Helix when pressing e in Lazygit
+  editPreset: "helix"
+
+git:
+  diffRenderers:
+    - type: stdinFilter
+      colorArg: always
+      command: delta --dark --paging=never
