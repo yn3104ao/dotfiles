@@ -1,9 +1,8 @@
 README.md
 
 {{ if not .is_windows }}
-# Windows-only artifacts (PowerShell scripts, Windows Terminal, AppData)
+# Windows-only artifacts (PowerShell scripts, AppData incl. Windows Terminal)
 **/*.ps1
-**/WindowsTerminal/
 AppData/
 {{ end }}
 
@@ -13,6 +12,8 @@ AppData/
 .bash_profile
 .profile
 **/*.sh
+# Helix reads %APPDATA%\helix on Windows (deployed via AppData/Roaming/helix)
+.config/helix
 {{ end }}
 
 {{/*
