@@ -5,6 +5,10 @@ local M = {}
 
 function M.apply(config)
   config.color_scheme = 'Catppuccin Mocha'
+  config.colors = {
+    cursor_bg = '#FFFFFF',
+    cursor_fg = '#1E1E2E',
+  }
   config.font = wezterm.font('Moralerspace Neon HW')
 
   config.window_decorations = 'RESIZE'
