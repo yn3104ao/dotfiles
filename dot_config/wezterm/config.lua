@@ -23,55 +23,153 @@ local function windows_program_available(program)
   return child_process_succeeds({ 'where.exe', program })
 end
 
--- ==========================================
--- 1. Default Settings
--- ==========================================
-local zellij_command = 'zellij attach -c ' .. session_name
-local powershell = 'powershell.exe'
-local has_wsl = false
-
-if is_windows then
-  has_wsl = windows_program_available('wsl.exe')
-  if windows_program_available('pwsh.exe') then
-    powershell = 'pwsh.exe'
+-- PowerShell 7 from the Store is an app execution alias, which io.open cannot
+-- see and which is missing from PATH when WezTerm is started by a launcher with
+-- a stale environment. Fall back to absolute paths, verified by running them.
+local function find_pwsh()
+  local function probe(args)
+    local ok, success = pcall(wezterm.run_child_process, args)
+    return ok and success
   end
 
-  if has_wsl then
-    config.default_prog = { 'wsl.exe', '~', '-d', 'Ubuntu', 'bash', '-l', '-c', zellij_command }
-  else
-    config.default_prog = { powershell, '-NoLogo' }
+  if probe({ 'where.exe', 'pwsh.exe' }) then
+    return 'pwsh.exe'
   end
-elseif is_linux then
-  config.default_prog = { 'bash', '-l', '-c', zellij_command }
-else
-  config.default_prog = { 'bash', '-l', '-c', zellij_command }
+  local candidates = { 'C:/Program Files/PowerShell/7/pwsh.exe' }
+  local local_app_data = os.getenv('LOCALAPPDATA')
+  if local_app_data then
+    table.insert(candidates, 1, local_app_data:gsub('\\', '/') .. '/Microsoft/WindowsApps/pwsh.exe')
+  end
+  for _, path in ipairs(candidates) do
+    if probe({ path, '-NoProfile', '-Command', 'exit' }) then
+      return path
+    end
+  end
+  return 'powershell.exe'
+end
+
+-- wsl.exe exists on every Windows install (as a stub that offers to install
+-- WSL), so check that the distribution is actually registered instead.
+local function wsl_distro_available(distro)
+  local ok, success, stdout = pcall(wezterm.run_child_process, { 'wsl.exe', '--list', '--quiet' })
+  if not (ok and success and stdout) then
+    return false
+  end
+
+  -- wsl.exe writes UTF-16LE; dropping the NUL bytes is enough for ASCII names.
+  for name in stdout:gsub('\0', ''):gmatch('[^\r\n]+') do
+    if name == distro then
+      return true
+    end
+  end
+  return false
 end
 
 -- ==========================================
--- 2. Launcher Menu
+-- 1. Default Settings
 -- ==========================================
+-- Launch mode is "auto": WSL (Ubuntu) when registered, otherwise PowerShell.
+-- Every shell attaches to zellij when it is installed and falls back to the
+-- bare shell otherwise (e.g. before mise has provisioned zellij).
+local function first_line(s)
+  return s and s:match('[^\r\n]+')
+end
+
+local function command_path(program)
+  local ok, success, stdout = pcall(wezterm.run_child_process, { 'where.exe', program })
+  if ok and success then
+    return first_line(stdout)
+  end
+  return nil
+end
+
+local function file_exists(path)
+  local f = path and io.open(path, 'r')
+  if f then
+    f:close()
+    return true
+  end
+  return false
+end
+
+-- Git Bash lives next to git.exe (<root>\cmd\git.exe -> <root>\bin\bash.exe).
+-- Never use a bare "bash": on Windows it can be the WSL launcher.
+local function find_git_bash()
+  local candidates = {}
+  local git = command_path('git.exe')
+  local root = git and git:gsub('\\', '/'):match('^(.*)/cmd/git%.exe$')
+  if root then
+    table.insert(candidates, root .. '/bin/bash.exe')
+  end
+  table.insert(candidates, 'C:/Program Files/Git/bin/bash.exe')
+  local local_app_data = os.getenv('LOCALAPPDATA')
+  if local_app_data then
+    table.insert(candidates, local_app_data:gsub('\\', '/') .. '/Programs/Git/bin/bash.exe')
+  end
+  for _, path in ipairs(candidates) do
+    if file_exists(path) then
+      return path
+    end
+  end
+  return nil
+end
+
+-- POSIX shell snippet: attach to zellij if present, otherwise a plain login shell.
+local function zellij_or_shell(name)
+  return 'command -v zellij >/dev/null 2>&1 && exec zellij attach -c ' .. name .. ' || exec bash -l'
+end
+
+local function pwsh_zellij_command(name)
+  -- Run through the profile (ZELLIJ_CONFIG_DIR / HOME); SHELL makes zellij panes use this shell.
+  return "if (Get-Command zellij -ErrorAction SilentlyContinue) { $env:SHELL = (Get-Process -Id $PID).Path; zellij attach -c "
+    .. name .. '; exit }'
+end
+
+local default_prog
 if is_windows then
-  config.launch_menu = {
-    {
-      label = '󰨊  PowerShell (Windows)',
-      args = { powershell, '-NoLogo' },
-    },
-  }
+  local has_wsl = wsl_distro_available('Ubuntu')
+  local powershell = find_pwsh()
+  local git_bash = find_git_bash()
+
+  local pwsh_session = session_name .. '-pwsh'
+  local bash_session = session_name .. '-bash'
 
   if has_wsl then
+    default_prog = { 'wsl.exe', '~', '-d', 'Ubuntu', 'bash', '-l', '-c', zellij_or_shell(session_name) }
+  else
+    default_prog = { powershell, '-NoLogo', '-NoExit', '-Command', pwsh_zellij_command(pwsh_session) }
+  end
+
+  -- ==========================================
+  -- 2. Launcher Menu (Ctrl+Shift+L): only shells that exist
+  -- ==========================================
+  config.launch_menu = {
+    { label = '󰨊  PowerShell', args = { powershell, '-NoLogo' } },
+    {
+      label = '󰨊  PowerShell + zellij',
+      args = { powershell, '-NoLogo', '-NoExit', '-Command', pwsh_zellij_command(pwsh_session) },
+    },
+  }
+  if git_bash then
+    table.insert(config.launch_menu, { label = '  Git Bash', args = { git_bash, '-l', '-i' } })
     table.insert(config.launch_menu, {
-      label = '  Ubuntu (Clean Shell)',
-      args = { 'wsl.exe', '~', '-d', 'Ubuntu' },
+      label = '  Git Bash + zellij',
+      args = { git_bash, '-l', '-c', zellij_or_shell(bash_session) },
     })
   end
+  if has_wsl then
+    table.insert(config.launch_menu, { label = '  Ubuntu (Clean Shell)', args = { 'wsl.exe', '~', '-d', 'Ubuntu' } })
+  end
 else
+  default_prog = { 'bash', '-l', '-c', zellij_or_shell(session_name) }
   config.launch_menu = {
     {
-      label = '  Bash',
+      label = '  Bash',
       args = { 'bash', '-l' },
     },
   }
 end
+config.default_prog = default_prog
 
 -- ==========================================
 -- 3. Exterior (Hyprland knockoff: Acrylic + Catppuccin)
@@ -93,7 +191,7 @@ config.use_fancy_tab_bar = false
 config.hide_tab_bar_if_only_one_tab = false
 config.enable_scroll_bar = false -- No scroll bar needed
 
-config.window_background_opacity = 0
+config.window_background_opacity = 0.65
 if gpus[1] then
   config.webgpu_preferred_adapter = gpus[1]
 end

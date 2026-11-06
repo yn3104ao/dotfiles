@@ -33,7 +33,8 @@ M.default_keybinds = {
 	{ key = "w", mods = "CTRL|SHIFT", action = act({ CloseCurrentPane = { confirm = false } }) },
 
 	-- For Debugging
-	{ key = 'L', mods = 'CTRL', action = act.ShowDebugOverlay },
+	-- Not Ctrl+L: an uppercase key already implies Shift, so it collided with the launcher on Ctrl+Shift+L
+	{ key = 'd', mods = 'CTRL|ALT', action = act.ShowDebugOverlay },
 }
 
 -- User-defined extra keybinds (empty by default; extend as needed)

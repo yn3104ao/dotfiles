@@ -43,6 +43,7 @@ tabline.setup(
 -- ==========================================
 -- Override Original Config
 -- ==========================================
-config = require("config")
+-- dofile instead of require: wezterm.run_child_process (used for shell detection) cannot yield inside require
+config = dofile(assert(package.searchpath("config", package.path)))
 
 return config
