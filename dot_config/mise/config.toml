@@ -1,3 +1,6 @@
+[settings]
+minimum_release_age = "48h"
+
 [env]
 _.path = ["~/.safe-chain/shims"]
 
@@ -102,15 +105,4 @@ nerdctl run -it --rm \
   -w "$HOME" \
   --user "$(id -u):$(id -g)" \
   ubuntu:24.04 bash
-"""
-
-[tasks."dind:up"]
-description = "Start a rootful Docker-in-Docker daemon"
-run = """
-  sudo nerdctl run -d --name dind \
-    --privileged \
-    -p 127.0.0.1:2375:2375 \
-    -e DOCKER_TLS_CERTDIR="" \
-    -v "$@":/var/lib/docker \
-    docker.io/docker:dind
 """

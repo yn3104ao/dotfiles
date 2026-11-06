@@ -8,15 +8,8 @@ command_timeout = 5000
 ## Format
 ################################################################################
 format = """
-$username\
-$hostname\
-$localip\
-$shlvl\
-$singularity\
-$kubernetes\
-$directory\
-$vcsh\
-$fossil_branch\
+$os: $directory
+(\
 ${custom.git_server}\
 $git_branch\
 $git_commit\
@@ -25,8 +18,8 @@ $git_metrics\
 $git_status\
 $hg_branch\
 $pijul_channel\
-$docker_context\
 $package\
+$bun\
 $c\
 $cmake\
 $cobol\
@@ -73,25 +66,8 @@ $nix_shell\
 $conda\
 $meson\
 $spack\
-$memory_usage\
-$aws\
-$gcloud\
-$openstack\
-$azure\
-$env_var\
-$crystal\
-$custom\
-$sudo\
-$cmd_duration\
-$line_break\
-$jobs\
-$battery\
-$time\
-$status\
-$os\
-$container\
-$shell\
-$character"""
+$crystal
+)${custom.prompt_user}$character"""
 
 ################################################################################
 ## Symbols
@@ -140,6 +116,40 @@ Windows = "󰍲 "
 ################################################################################
 ## Custom Commands
 ################################################################################
+[custom.prompt_user]
+description = "Display root/admin marker, short username, or user marker"
+when = true
+format = '[$output](yellow bold) '
+{{ if .is_windows -}}
+shell = ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command"]
+use_stdin = false
+command = '''
+$identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+$principal = [Security.Principal.WindowsPrincipal]::new($identity)
+if ($principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    '#'
+} elseif ($env:USERNAME -and $env:USERNAME.Length -le 5) {
+    $env:USERNAME
+} else {
+    '$'
+}
+'''
+{{ else -}}
+shell = ["bash", "--noprofile", "--norc"]
+command = '''
+if [ "$(id -u)" -eq 0 ]; then
+    printf '#'
+else
+    username="$(id -un)"
+    if [ "${#username}" -le 5 ]; then
+        printf '%s' "$username"
+    else
+        printf '$'
+    fi
+fi
+'''
+{{ end -}}
+
 [custom.git_server]
 #disabled = true
 description = "Display symbol for remote Git server"
@@ -268,7 +278,7 @@ disabled = true
 [directory]
 read_only = "󰌾 "
 truncation_length = 5
-format = "[$path]($style)[$lock_symbol]($lock_style) "
+format = "[$path]($style)[$read_only]($read_only_style)"
 
 [directory.substitutions]
 "Documents" = "󰈙 "
@@ -513,6 +523,6 @@ format = '\[[$symbol($version)]($style)\]'
 format = '\[[$symbol($version)]($style)\]'
 
 [os]
-format = "on [$name $symbol]($style)"
+format = "[$name $symbol]($style)"
 style = "bold blue"
 disabled = false

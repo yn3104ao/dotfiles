@@ -5,7 +5,7 @@ if (Get-Command mise -ErrorAction SilentlyContinue) {
 }
 
 # ----- fzf -----
-$script:FzfCommand = (Get-Command fzf -CommandType Application -ErrorAction SilentlyContinue).Source
+$script:FzfCommand = (Get-Command fzf -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
 
 # ----- starship -----
 if (Get-Command starship -ErrorAction SilentlyContinue) {
