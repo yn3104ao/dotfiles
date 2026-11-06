@@ -102,3 +102,16 @@ if command -v gwq > /dev/null 2>&1 && command -v fzf > /dev/null 2>&1 && command
         [ -n "$target" ] && builtin cd -- "$target"
     }
 fi
+
+if command -v fd > /dev/null 2>&1 && command -v fzf > /dev/null 2>&1; then
+    function cdf() {
+        local root target
+        root="${1:-$HOME}"
+        if [ ! -d "$root" ]; then
+            printf 'Not a directory: %s\n' "$root" >&2
+            return 2
+        fi
+        target="$( { printf '%s\n' "$root"; command fd --type d --hidden --no-ignore --exclude .git --exclude node_modules . "$root"; } | command fzf --no-preview --prompt='Directory > ' --height=40% --layout=reverse )" || return
+        [ -n "$target" ] && builtin cd -- "$target"
+    }
+fi

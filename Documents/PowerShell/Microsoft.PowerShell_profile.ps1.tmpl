@@ -92,6 +92,21 @@ if ((Get-Command gwq -ErrorAction SilentlyContinue) -and $script:FzfCommand) {
     }
 }
 
+if ((Get-Command fd -ErrorAction SilentlyContinue) -and $script:FzfCommand) {
+    function global:cdf {
+        param([string]$Root = $HOME)
+        if (-not (Test-Path -LiteralPath $Root -PathType Container)) {
+            Write-Error "Not a directory: $Root"
+            return
+        }
+        $directories = @($Root) + @(fd --type d --hidden --no-ignore --exclude .git --exclude node_modules . $Root)
+        $target = $directories | & $script:FzfCommand --no-preview --prompt='Directory > ' --height=40% --layout=reverse
+        if ($LASTEXITCODE -eq 0 -and $target) {
+            Set-Location -LiteralPath $target
+        }
+    }
+}
+
 # ----- safe-chain -----
 if (Test-Path (Join-Path $HOME '.safe-chain\scripts\init-pwsh.ps1')) {
     . (Join-Path $HOME '.safe-chain\scripts\init-pwsh.ps1')
