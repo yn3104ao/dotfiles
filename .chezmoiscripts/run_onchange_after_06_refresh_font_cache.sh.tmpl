@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# .chezmoiexternal hash: {{ include ".chezmoiexternal.toml.tmpl" | sha256sum }}
+{{ if not (and .is_pure_linux .is_desktop) -}}
+echo "[chezmoi] [refresh_font_cache.sh] ⏭️ Fonts are only provisioned on Linux desktops. Skipping."
+exit 0
+{{ end -}}
+
+FONT_DIR="$HOME/.local/share/fonts/Moralerspace"
+
+if [ ! -d "$FONT_DIR" ]; then
+    echo "[chezmoi] [refresh_font_cache.sh] ℹ️ $FONT_DIR does not exist. Skipping."
+    exit 0
+fi
+
+if ! command -v fc-cache > /dev/null 2>&1; then
+    echo "[chezmoi] [refresh_font_cache.sh] ⚠️ fc-cache not found. Skipping font cache refresh."
+    exit 0
+fi
+
+echo "[chezmoi] [refresh_font_cache.sh] 🔤 Refreshing font cache..."
+fc-cache -f "$FONT_DIR"
+echo "[chezmoi] [refresh_font_cache.sh] ✅ Font cache refreshed."
