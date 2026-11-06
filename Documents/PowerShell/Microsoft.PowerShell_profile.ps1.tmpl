@@ -19,6 +19,8 @@ if (Get-Command starship -ErrorAction SilentlyContinue) {
 # ----- atuin -----
 if ((Get-Command atuin -ErrorAction SilentlyContinue) -and (Get-Module -ListAvailable -Name PSReadLine)) {
     Invoke-Expression (& { (atuin init powershell | Out-String) })
+    # The init script always binds Up to atuin (no --disable-up-arrow equivalent); keep Up as plain history, Ctrl+R only for atuin
+    Set-PSReadLineKeyHandler -Chord UpArrow -Function PreviousHistory
 }
 
 # ----- zoxide -----

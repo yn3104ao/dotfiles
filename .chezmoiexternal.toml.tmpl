@@ -44,6 +44,17 @@
     checksum = { sha256 = "4cb7e2cc912d975b4e755c93e44e7f0de62ef9240a09a89b735490cf4713792c", size = 2966889 }
 
 {{- /*
+   bash-preexec provides the preexec/precmd hooks that atuin needs to record
+   bash history. It is sourced from .bashrc on every platform (Linux, WSL, and
+   Git Bash on Windows).
+*/}}
+[".local/share/bash-preexec/bash-preexec.sh"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/rcaloras/bash-preexec/0.7.0/bash-preexec.sh"
+    refreshPeriod = "8760h"
+    checksum = { sha256 = "33de4e70ee84981d46e7d8a0e3105f1dd9affc9c4178594446cd96e7ef3b2752", size = 21756 }
+
+{{- /*
    Moralerspace HW is the font used by the WezTerm and Windows Terminal
    configs. It is provisioned wherever a local GUI terminal runs: native
    Windows and Linux desktops (WSL uses the Windows host's fonts, and headless
