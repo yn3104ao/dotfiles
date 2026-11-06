@@ -1,8 +1,8 @@
 gui:
-  # Nerd Fonts v3 のアイコンを表示
+  # Nerd Fonts v3 icons
   nerdFontsVersion: "3"
   border: "cornered"
-  # Catppuccin Mocha カラーパレット
+  # Catppuccin Mocha palette
   theme:
     activeBorderColor:
       - "#89b4fa" # Blue
@@ -25,7 +25,7 @@ gui:
       - "#f9e2af" # Yellow
 
 os:
-  # lazygitから e キーでファイルを開いたときにHelixで開く
+  # Open files with Helix when pressing e in Lazygit
   editPreset: "helix"
 
 git:
