@@ -1,0 +1,32 @@
+{{ if .is_windows -}}
+{{ template "windows/prelude.ps1" . }}
+$script:ScriptName = 'install_core_packages.ps1'
+
+# mise itself is installed by run_once_20_install_mise (same split as Linux).
+$packages = @(
+    'Microsoft.PowerShell'
+    'Git.Git'
+    'GitHub.cli'
+    'AgileBits.1Password.CLI'
+    'Fastfetch-cli.Fastfetch'
+    'Microsoft.VisualStudioCode'
+    'wez.wezterm'
+    'OliverSchwendener.ueli'
+)
+{{- if eq .profile "work" }}
+
+Write-Step 'Work profile detected.'
+$packages += 'Microsoft.VisualStudio.2022.Professional'
+{{- end }}
+
+foreach ($id in $packages) {
+    Install-WingetPackage $id
+}
+
+Update-SessionPath
+if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
+    fastfetch
+}
+
+Write-Step 'Core package installation completed.'
+{{ end -}}

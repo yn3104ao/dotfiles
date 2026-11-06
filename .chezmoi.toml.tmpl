@@ -37,3 +37,13 @@
     is_wsl = {{ $is_wsl }}
     is_pure_linux = {{ $is_pure_linux }}
     is_desktop = {{ $is_desktop }}
+{{- if $is_windows }}
+
+{{/* chezmoi runs .ps1 scripts with Windows PowerShell 5.1 (pwsh may not be  */}}
+{{/* installed yet). -NoProfile keeps runs reproducible, -ExecutionPolicy    */}}
+{{/* Bypass avoids the "Restricted" default on fresh Windows clients, and    */}}
+{{/* -File must be listed because these args replace chezmoi's defaults.    */}}
+[interpreters.ps1]
+    command = "powershell"
+    args = ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File"]
+{{- end }}
