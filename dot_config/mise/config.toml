@@ -3,24 +3,39 @@ _.path = ["~/.safe-chain/shims"]
 
 [tools]
 # ===============
-# Rust Tools
+# CLI Tools
 # ===============
 
-# CLI Commands
+# File management / navigation
 "github:eza-community/eza" = "0.23.4"
+yazi = "latest"
+zoxide = "0.9.6"
+
+# File viewing / preview
 bat = "0.26.1"
+"github:RazrFalcon/resvg" = "latest" # SVGプレビュー用
+
+# Search / text processing
 fd = "10.3.0"
 ripgrep = "15.1.0"
-bottom = "0.12.3"
+fzf = "0.70.0"
 sd = "1.1.0"
-zoxide = "0.9.6"
-atuin = "18.12.1"
-dust = "1.2.6"
-"aqua:printfn/fend" = "1.5.8"
-jj = "0.45.1"
+jq = "latest"
 
-# pager
-delta = "0.18.2"
+# System monitoring / disk usage
+bottom = "0.12.3"
+dust = "1.2.6"
+
+# Calculator
+"aqua:printfn/fend" = "1.5.8"
+
+# ===============
+# Shell / Terminal
+# ===============
+
+# Prompt / history
+starship = "1.24.2"
+atuin = "18.12.1"
 
 # Terminal multiplexer (0.44.0+ ships native Windows binaries)
 zellij = "0.44.3"
@@ -31,16 +46,28 @@ herdr = "0.9.5"
 # Editor
 helix = "25.07.1"
 
-# Beautiful Prompt
-starship = "1.24.2"
+# ===============
+# VCS (Version Control System)
+# ===============
 
-# This is written in Go, but it's required
-fzf = "0.70.0"
+# Git
+lazygit = "latest"
+"github:d-kuro/gwq" = "latest"
+delta = "0.18.2"
+
+# jj
+jj = "0.45.1"
+"github:Cretezy/lazyjj" = "latest"
 
 # ===============
 # Languages (global install)
 # ===============
+
+# Rust
 # rust = "1.94.0"
+
+# Python
+uv = "0.11.28"
 
 # ===============
 # Languages (formatter and lang-server)
@@ -51,8 +78,6 @@ fzf = "0.70.0"
 # "npm:typescript-language-server" = "latest"
 
 # Python
-# An extremely fast Python package/project manager (cross-platform via aqua)
-uv = "0.11.28"
 # "pipx:ruff" = "latest"
 # "pipx:pyright" = "latest"
 

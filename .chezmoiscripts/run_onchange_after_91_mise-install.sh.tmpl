@@ -35,4 +35,11 @@ echo "[chezmoi] [mise-install.sh] 🔄 Changes to mise.toml have been detected. 
 
 mise install --yes
 mise prune --yes
+
+export YAZI_CONFIG_HOME="$HOME/.config/yazi"
+if [ ! -f "$YAZI_CONFIG_HOME/flavors/catppuccin-mocha.yazi/flavor.toml" ]; then
+    echo "[chezmoi] [mise-install.sh] Installing the Yazi Catppuccin Mocha flavor..."
+    mise exec -- ya pkg add yazi-rs/flavors:catppuccin-mocha
+fi
+
 echo "[chezmoi] [mise-install.sh] ✅ The installation is complete!"

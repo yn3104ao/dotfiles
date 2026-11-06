@@ -31,5 +31,13 @@ if (Get-Command gh -ErrorAction SilentlyContinue) {
 Write-Step 'Changes to mise config.toml have been detected. Proceeding with tool installation/update...'
 Invoke-Native 'mise' @('install', '--yes')
 Invoke-Native 'mise' @('prune', '--yes')
+
+$env:YAZI_CONFIG_HOME = Join-Path $HOME '.config\yazi'
+$flavorFile = Join-Path $env:YAZI_CONFIG_HOME 'flavors\catppuccin-mocha.yazi\flavor.toml'
+if (-not (Test-Path -LiteralPath $flavorFile -PathType Leaf)) {
+    Write-Step 'Installing the Yazi Catppuccin Mocha flavor...'
+    Invoke-Native 'mise' @('exec', '--', 'ya', 'pkg', 'add', 'yazi-rs/flavors:catppuccin-mocha')
+}
+
 Write-Step 'The installation is complete!'
 {{ end -}}

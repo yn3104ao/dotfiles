@@ -1,0 +1,12 @@
+[worktree]
+# Default base directory for new worktrees
+{{ if and (eq .profile "work") .is_windows (eq (output "powershell.exe" "-NoProfile" "-NonInteractive" "-Command" "Test-Path -LiteralPath 'D:/' -PathType Container -ErrorAction SilentlyContinue" | trim) "True") -}}
+basedir = "D:/work/worktrees"
+{{ else -}}
+basedir = "~/worktrees"
+{{ end -}}
+# Automatically create a branch when the specified branch does not exist
+auto_mkdir = true
+
+[finder]
+preview = true

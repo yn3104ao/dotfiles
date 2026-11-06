@@ -39,6 +39,11 @@ if command -v zoxide > /dev/null 2>&1; then
     eval "$(zoxide init bash --cmd cd)"
 fi
 
+# ----- editor -----
+if command -v hx > /dev/null 2>&1; then
+    export EDITOR='hx'
+fi
+
 # ----- safe-chain -----
 if [ -f "$HOME/.safe-chain/scripts/init-posix.sh" ]; then
     . "$HOME/.safe-chain/scripts/init-posix.sh"
@@ -68,3 +73,32 @@ alias ssh='ssh.exe'
 alias ssh-add='ssh-add.exe'
 alias op='op.exe'
 {{ end }}
+
+# ----- Functions -----
+if command -v yazi > /dev/null 2>&1; then
+    export YAZI_CONFIG_HOME="$HOME/.config/yazi"
+    function y() {
+        local tmp cwd status
+        tmp="$(mktemp)" || return
+        command yazi "$@" --cwd-file="$tmp"
+        status=$?
+        cwd="$(< "$tmp")"
+        command rm -f -- "$tmp"
+        if [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            builtin cd -- "$cwd" || return
+        fi
+        return "$status"
+    }
+fi
+
+if command -v gwq > /dev/null 2>&1 && command -v fzf > /dev/null 2>&1 && command -v jq > /dev/null 2>&1; then
+    function gw() {
+        local worktrees paths target
+        worktrees="$(gwq list -g --json)" || return
+        [[ "$worktrees" == *'['* ]] || return
+        paths="$(printf '%s\n' "$worktrees" | command jq -r '.[].path')" || return
+        [ -n "$paths" ] || return
+        target="$(printf '%s\n' "$paths" | command fzf --no-preview --prompt='Worktree > ' --height=40% --layout=reverse)" || return
+        [ -n "$target" ] && builtin cd -- "$target"
+    }
+fi

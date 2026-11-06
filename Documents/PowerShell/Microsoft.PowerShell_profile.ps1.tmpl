@@ -2,8 +2,6 @@
 # ----- mise -----
 if (Get-Command mise -ErrorAction SilentlyContinue) {
     mise activate pwsh | Out-String | Invoke-Expression
-    $env:MISE_STRICT = '0'
-    $env:MISE_USE_VERSIONS_HOST = '1'
 }
 
 # ----- fzf -----
@@ -11,8 +9,6 @@ $script:FzfCommand = (Get-Command fzf -CommandType Application -ErrorAction Sile
 
 # ----- starship -----
 if (Get-Command starship -ErrorAction SilentlyContinue) {
-    # chezmoi deploys the config to ~/.config/starship/, not starship's default ~/.config/starship.toml
-    $env:STARSHIP_CONFIG = Join-Path $HOME '.config\starship\starship.toml'
     Invoke-Expression (&starship init powershell)
 }
 
@@ -59,17 +55,41 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 }
 
 if (Get-Command zellij -ErrorAction SilentlyContinue) {
-    # Zellij on Windows defaults to %APPDATA%\Zellij; redirect it to the
-    # chezmoi-managed ~/.config/zellij so every platform shares one config.
-    $env:ZELLIJ_CONFIG_DIR = Join-Path $HOME '.config\zellij'
-    # Plugin `file:$HOME/...` paths are shell-expanded and need the HOME env
-    # var, which Windows does not set by default.
-    if (-not $env:HOME) { $env:HOME = $HOME }
     function global:zlj { zellij @args }
 }
 
 if ($script:FzfCommand -and (Get-Command bat -ErrorAction SilentlyContinue)) {
     function global:fzf { & $script:FzfCommand --preview 'bat --color=always --style=numbers --line-range=:500 {}' @args }
+}
+
+if (Get-Command yazi -ErrorAction SilentlyContinue) {
+    function global:y {
+        $tmp = [System.IO.Path]::GetTempFileName()
+        try {
+            yazi @args --cwd-file="$tmp"
+            $cwd = Get-Content -LiteralPath $tmp -Raw -Encoding UTF8
+            if (-not [String]::IsNullOrWhiteSpace($cwd)) {
+                $cwd = $cwd.TrimEnd("`r", "`n")
+                if ($cwd -ne $PWD.Path) {
+                    Set-Location -LiteralPath $cwd
+                }
+            }
+        } finally {
+            Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+if ((Get-Command gwq -ErrorAction SilentlyContinue) -and $script:FzfCommand) {
+    function global:gw {
+        $worktrees = gwq list -g --json | Out-String
+        if ($LASTEXITCODE -ne 0 -or -not $worktrees.TrimStart().StartsWith('[')) { return }
+        $target = $worktrees | ConvertFrom-Json | ForEach-Object { $_.path } |
+            & $script:FzfCommand --no-preview --prompt='Worktree > ' --height=40% --layout=reverse
+        if ($LASTEXITCODE -eq 0 -and $target) {
+            Set-Location -LiteralPath $target
+        }
+    }
 }
 
 # ----- safe-chain -----
