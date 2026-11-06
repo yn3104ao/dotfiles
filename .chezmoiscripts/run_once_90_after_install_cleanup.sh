@@ -31,3 +31,9 @@ sudo rm -rf /tmp/*
 sudo rm -rf /var/tmp/*
 
 echo "[chezmoi] [cleanup.sh] 🎉 Cleanup script completed."
+
+echo "[chezmoi] [cleanup.sh] 🔑 To connect to other machines from WezTerm (Ctrl+Shift+L), add them to ~/.ssh/config by hand."
+echo "[chezmoi] [cleanup.sh]    ~/.ssh/config is only created once and never overwritten. Example:"
+echo "[chezmoi] [cleanup.sh]      Host linux-dev"
+echo "[chezmoi] [cleanup.sh]          HostName 10.x.x.x"
+echo "[chezmoi] [cleanup.sh]          User yano"

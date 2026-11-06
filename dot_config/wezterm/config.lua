@@ -171,6 +171,27 @@ else
 end
 config.default_prog = default_prog
 
+-- WezTerm's built-in SSH client cannot use the 1Password agent (a Windows named
+-- pipe), so SSH domains fail with "PUBLIC_KEY: Denied". List the Host entries of
+-- ~/.ssh/config in the launcher and run the system ssh, which does use the agent.
+config.ssh_domains = {}
+for _, domain in ipairs(wezterm.default_ssh_domains()) do
+  if domain.name:find('^SSH:') then
+    local host = domain.remote_address
+    table.insert(config.launch_menu, { label = '󰣀  ' .. domain.name, args = { 'ssh', host } })
+    -- Attach to zellij on the remote when installed, else a login shell.
+    table.insert(config.launch_menu, {
+      label = '󰣀  ' .. domain.name .. ' + zellij',
+      args = {
+        'ssh',
+        '-t',
+        host,
+        'command -v zellij >/dev/null 2>&1 && exec zellij attach -c ' .. session_name .. ' || exec $SHELL -l',
+      },
+    })
+  end
+end
+
 -- ==========================================
 -- 3. Exterior (Hyprland knockoff: Acrylic + Catppuccin)
 -- ==========================================
