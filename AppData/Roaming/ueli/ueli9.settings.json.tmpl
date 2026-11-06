@@ -5,14 +5,18 @@
         "jpy"
     ],
     "extension[CurrencyConversion].defaultTargetCurrency": "jpy",
+    {{ if eq .profile "personal" }}
     "extension[DeeplTranslator].apiKey": "{{ onepasswordRead "op://Personal/DeepL API/credential" }}",
     "extension[DeeplTranslator].defaultTargetLanguage": "EN-US",
+    {{ end }}
     "extension[TerminalLauncher].terminalIds": [
         "Powershell Core"
     ],
     "extensions.enabledExtensionIds": [
         "TerminalLauncher",
+        {{ if eq .profile "personal" }}
         "DeeplTranslator",
+        {{ end }}
         "WindowsControlPanel",
         "WebSearch",
         "SystemSettings",
